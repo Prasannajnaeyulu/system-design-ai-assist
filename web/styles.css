@@ -1,0 +1,221 @@
+:root {
+  --bg: #f4f1ea;
+  --paper: #fffdf9;
+  --ink: #1c1915;
+  --muted: #5e584e;
+  --faint: #8a8174;
+  --line: #e3dcd0;
+  --side: #1e2a24;
+  --side-ink: #f3efe6;
+  --side-dim: #c9c2b4;
+  --accent: #1f5c40;
+  --accent-soft: #e5f2eb;
+  --warn: #8a4b12;
+  --warn-soft: #f8efe3;
+  --good: #1d5c38;
+  --good-soft: #e5f2eb;
+  --shadow: none;
+  color-scheme: light;
+  font-family: "Iowan Old Style", Palatino, "Palatino Linotype", Georgia, serif;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); }
+body { min-height: 100vh; }
+button, input, textarea, select { font: inherit; color: inherit; }
+a { color: var(--accent); }
+
+#app {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: 100vh;
+}
+
+.side {
+  background: var(--side);
+  color: var(--side-ink);
+  padding: 28px 18px 40px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: auto;
+}
+.brand {
+  display: block;
+  color: var(--side-ink);
+  text-decoration: none;
+  margin-bottom: 22px;
+}
+.brand small {
+  display: block;
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: var(--side-dim);
+  margin-bottom: 4px;
+}
+.brand strong { font-size: 22px; font-weight: 600; }
+.side nav { display: flex; flex-direction: column; gap: 2px; }
+.week-link, .lesson-link {
+  display: block;
+  text-decoration: none;
+  color: var(--side-dim);
+  border-radius: 8px;
+  padding: 7px 10px;
+}
+.week-link {
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.week-link.active, .lesson-link.active { background: rgba(255, 253, 249, 0.1); color: var(--side-ink); }
+.week-link:hover, .lesson-link:hover { color: var(--side-ink); }
+.lesson-link { font-size: 14px; padding-left: 18px; }
+.dot {
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+  font-size: 12px;
+  color: var(--side-dim);
+}
+.menu-toggle { display: none; }
+
+.main { padding: 36px 28px 80px; }
+.sheet { max-width: 740px; margin: 0 auto; }
+.kicker {
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 8px;
+}
+h1 { font-size: 40px; line-height: 1.15; font-weight: 600; margin: 0 0 12px; }
+h2 { font-size: 26px; font-weight: 600; margin: 36px 0 10px; }
+h3 { font-size: 18px; font-weight: 600; margin: 0 0 6px; }
+p, li { font-size: 18px; line-height: 1.55; }
+.lead { font-size: 20px; line-height: 1.5; color: var(--ink); }
+.muted { color: var(--muted); }
+.faint { color: var(--faint); font-family: "Avenir Next", "Segoe UI", sans-serif; font-size: 14px; }
+
+.pills { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 8px; }
+.pill {
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+  font-size: 13px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 4px 10px;
+}
+
+.card, .callout, .choice, .note {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin: 12px 0;
+}
+.callout.good { background: var(--good-soft); border-color: #c9e4d4; }
+.callout.warn { background: var(--warn-soft); border-color: #ead7c2; }
+.callout strong, .callout .label {
+  display: block;
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.week-list { display: flex; flex-direction: column; gap: 10px; margin-top: 18px; }
+.week-card {
+  display: grid;
+  grid-template-columns: 72px 1fr auto;
+  gap: 14px;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px 16px;
+}
+.week-card:hover { border-color: #cfc6b6; }
+.week-num {
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+  font-size: 13px;
+  color: var(--accent);
+}
+.week-card p { margin: 4px 0 0; font-size: 15px; color: var(--muted); }
+
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 14px 0; }
+.stat {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px;
+}
+.stat b { display: block; font-size: 22px; }
+.stat span { color: var(--muted); font-size: 14px; }
+
+table { width: 100%; border-collapse: collapse; background: var(--paper); border-radius: 12px; overflow: hidden; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; font-size: 16px; }
+th { font-family: "Avenir Next", "Segoe UI", sans-serif; font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+
+.choice button.opt {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-top: 8px;
+  cursor: pointer;
+}
+.choice button.opt.picked { border-color: var(--accent); background: var(--accent-soft); }
+.choice button.opt.match { border-color: var(--good); }
+.effect { margin-top: 8px; }
+
+textarea, input[type="text"], input[type="number"] {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #fff;
+}
+textarea { min-height: 74px; resize: vertical; }
+
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+button.primary, button.ghost, a.button {
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+  font-size: 14px;
+  border-radius: 999px;
+  padding: 8px 14px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+button.primary { background: var(--accent); color: white; border: 0; }
+button.ghost, a.button { background: transparent; border: 1px solid var(--line); color: var(--ink); }
+.pager { display: flex; justify-content: space-between; gap: 12px; margin-top: 28px; }
+.pager a { text-decoration: none; color: var(--ink); max-width: 46%; }
+
+details.reference { margin-top: 18px; }
+details.reference summary {
+  cursor: pointer;
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+  font-size: 15px;
+}
+.steps { padding-left: 18px; }
+.steps li { margin: 8px 0; }
+
+@media (max-width: 860px) {
+  #app { grid-template-columns: 1fr; }
+  .side { position: relative; height: auto; display: none; }
+  .side.open { display: block; }
+  .menu-toggle { display: inline-block; margin-bottom: 12px; }
+  .stats { grid-template-columns: 1fr 1fr; }
+  h1 { font-size: 32px; }
+  .week-card { grid-template-columns: 1fr; }
+}

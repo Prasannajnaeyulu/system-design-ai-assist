@@ -1,8 +1,6 @@
 # How a session works
 
-Open the panel from the link in [README.md](../README.md). Do not study the `.canvas.tsx` file. That file is the program that draws the panel. Reading it shows later questions and the hidden review early.
-
-A canvas is a live panel beside the chat. Your answers stay in it after you close the laptop.
+Open the reader at https://prasannajnaeyulu.github.io/system-design-ai-assist/ . Your notes stay in that browser. Export them from the home page before you switch devices.
 
 ## What a session is for
 

@@ -60,7 +60,85 @@ const GLOSSARY = [
 ];
 
 const byFile = Object.fromEntries(window.LESSONS.map((lesson) => [lesson.file, lesson]));
-const flat = ORDER.flat();
+for (const lesson of window.FOUNDATIONS || []) byFile[lesson.file] = lesson;
+const foundationIds = (window.FOUNDATIONS || []).map((lesson) => lesson.file);
+const flat = [...foundationIds, ...ORDER.flat()];
+
+const DIAGRAM_NODES = [
+  ["client", "Client"],
+  ["lb", "Load balancer"],
+  ["service", "Service"],
+  ["db", "Database"],
+  ["cache", "Cache"],
+  ["queue", "Queue"],
+  ["object", "Object storage"],
+  ["third", "Third party"],
+];
+
+const ESTIMATES = {
+  "week-01-card-authorization": {
+    prompt: "200 authorizations a second, 500 bytes each. How many GB do you store in one day, before indexes and copies? Enter a number.",
+    unit: "GB/day",
+    low: 6,
+    high: 12,
+    method: "200 × 86,400 × 500 bytes, divided by 1e9, is about 8.6 GB/day.",
+  },
+  "week-05-notification-drill": {
+    prompt: "Peak 5,000 sends a second. A quiet hour is about 500. If you size a full day of disk from the peak, by what factor do you overbuild? Enter the factor.",
+    unit: "times",
+    low: 8,
+    high: 12,
+    method: "5,000 / 500 is 10. Peak sizes workers. Average sizes a day's records.",
+  },
+  "week-09-double-entry-ledger": {
+    prompt: "150 postings a second on average, 400 bytes each, kept 7 years. About how many TB is that before copies? Enter a number.",
+    unit: "TB",
+    low: 8,
+    high: 20,
+    method: "150 × 86,400 × 400 × 365 × 7 / 1e12 is about 13 TB.",
+  },
+};
+
+const COMPETENCY_OF = {
+  "foundation-data-models": ["Data models"],
+  "foundation-storage": ["Indexing", "Storage engines"],
+  "foundation-schema": ["Schema evolution"],
+  "week-01-card-authorization": ["Requirements", "Estimation", "Load balancing"],
+  "week-01-banking-chatbot-critique": ["Requirements", "Correctness"],
+  "week-02-ledger-vs-feed": ["Replication", "Consistency", "Indexing"],
+  "week-02-charge-idempotency": ["Idempotency", "Transactions"],
+  "week-03-cache-boundaries": ["Caching"],
+  "week-03-partitioning": ["Partitioning", "Indexing"],
+  "week-04-settlement-outbox": ["Queues", "Derived data"],
+  "week-04-retries-and-poison": ["Failure handling"],
+  "week-05-rate-limiter": ["Load balancing", "Reliability"],
+  "week-05-notification-drill": ["Queues", "Idempotency"],
+  "week-06-activity-feed": ["Derived data", "Indexing"],
+  "week-06-netflix-personalization": ["Derived data", "Caching"],
+  "week-07-uber-dispatch": ["Indexing", "Consistency"],
+  "week-07-location-fanout-drill": ["Queues", "Failure handling"],
+  "week-08-video-delivery": ["Caching", "Reliability"],
+  "week-08-slo-and-metrics": ["Observability"],
+  "week-09-double-entry-ledger": ["Ledger", "Transactions", "Indexing"],
+  "week-09-payment-state-machine": ["Payments", "Idempotency"],
+  "week-10-reconciliation": ["Reconciliation"],
+  "week-10-fraud-decision": ["Fraud", "Reliability"],
+  "week-11-wallet-payouts": ["Ledger", "Idempotency"],
+  "week-11-payment-platform-drill": ["Payments", "Tradeoffs"],
+  "week-12-feature-platform": ["Derived data", "ML serving"],
+  "week-12-model-serving": ["ML serving", "Reliability"],
+  "week-13-financial-rag": ["Security", "Indexing"],
+  "week-13-eval-and-cost": ["ML serving", "Tradeoffs"],
+  "week-14-payment-risk-capstone": ["Payments", "Correctness", "Failure handling"],
+  "week-14-mock-interview": ["Tradeoffs", "Estimation"],
+};
+
+const CASE_NOTES = {
+  "week-06-netflix-personalization": "Decision to keep: candidates are computed before the request, and ranking has a deadline. Do not copy their services. A fraud score has the same shape: heavy features ahead of time, a small fresh lookup on the tap.",
+  "week-07-uber-dispatch": "Decision to keep: index space by cell because a scan of every driver misses the deadline. Do not copy H3 into a ledger. A ledger is not a map.",
+  "week-02-ledger-vs-feed": "Decision to keep: one read must see the latest commit and another may lag. Their hex index is a neighboring problem. The lesson is the cut, not the hexes.",
+  "foundation-data-models": "Decision to keep: the ledger stays a zero-sum record while the platform around it changes. Do not copy the org chart of services.",
+};
 
 const storageKey = "sd-training-reader-v1";
 
@@ -98,6 +176,37 @@ function weekOf(file) {
   return ORDER.findIndex((pair) => pair.includes(file)) + 1;
 }
 
+function notesReady(state, file) {
+  const notes = (state.notes && state.notes[file]) || {};
+  return NOTES.every((item) => (notes[item[0]] || "").trim().length >= 40);
+}
+
+function diagramReady(state, file) {
+  const diagram = (state.diagrams && state.diagrams[file]) || {};
+  const lanes = diagram.lanes || {};
+  const values = Object.values(lanes);
+  return Boolean(diagram.truth) && values.includes("sync") && values.includes("async");
+}
+
+function estimateReady(state, file) {
+  if (!ESTIMATES[file]) return true;
+  return Boolean(state.estimates && state.estimates[file] && state.estimates[file].ok);
+}
+
+function scoresReady(state, file) {
+  const scores = (state.scores && state.scores[file]) || {};
+  return NOTES.every((item) => ["0", "1", "2"].includes(scores[item[0]]));
+}
+
+function readiness(state, file) {
+  const missing = [];
+  if (!diagramReady(state, file)) missing.push("place at least one sync step, one async step, and a source of truth");
+  if (!estimateReady(state, file)) missing.push("check the arithmetic");
+  if (!notesReady(state, file)) missing.push("write a real paragraph in each of the seven notes");
+  if (!scoresReady(state, file)) missing.push("score each move 0, 1, or 2");
+  return missing;
+}
+
 function doneCount(state, week) {
   const ids = week ? ORDER[week - 1] : flat;
   return ids.filter((id) => state.done && state.done[id]).length;
@@ -123,14 +232,34 @@ function renderSidebar(state, activeFile, weekOpen) {
       : "";
     return `<a class="week-link ${open ? "active" : ""}" href="#/week/${week}"><span>Week ${week}</span><span class="dot">${doneCount(state, week)}/2</span></a>${lessons}`;
   }).join("");
-  return `<aside class="side" id="side">
-    <a class="brand" href="#/"><small>14 weeks · about 90 minutes a day</small><strong>System design</strong></a>
-    <nav>${weeks}</nav>
+  const foundations = foundationIds
+    .map((id) => {
+      const lesson = byFile[id];
+      const mark = state.done && state.done[id] ? "Done" : "";
+      return `<a class="lesson-link ${id === activeFile ? "active" : ""}" href="${lessonLink(id)}" ${id === activeFile ? 'aria-current="page"' : ""}>${escapeHtml(lesson.title)} <span class="dot">${mark}</span></a>`;
+    })
+    .join("");
+  return `<a class="skip" href="#main">Skip to content</a><aside class="side" id="side">
+    <a class="brand" href="#/"><small>Foundations, then 14 weeks</small><strong>System design</strong></a>
+    <nav aria-label="Course">
+      <a class="week-link" href="#/">Foundations</a>
+      ${foundations}
+      ${weeks}
+    </nav>
   </aside>`;
 }
 
 function renderHome(state) {
   const next = flat.find((id) => !(state.done && state.done[id])) || flat[0];
+  const practiced = {};
+  for (const id of flat) {
+    if (!(state.done && state.done[id])) continue;
+    for (const name of COMPETENCY_OF[id] || []) practiced[name] = (practiced[name] || 0) + 1;
+  }
+  const allCompetencies = [...new Set(Object.values(COMPETENCY_OF).flat())].sort();
+  const competencyList = allCompetencies
+    .map((name) => `<li>${escapeHtml(name)} — ${practiced[name] ? `${practiced[name]} session${practiced[name] === 1 ? "" : "s"}` : "not yet"}</li>`)
+    .join("");
   const nextLesson = byFile[next];
   const cards = WEEKS.map(([title, blurb], index) => {
     const week = index + 1;
@@ -143,13 +272,17 @@ function renderHome(state) {
     <p class="kicker">Read it week by week</p>
     <h1>System design training</h1>
     <p class="lead">Fourteen weeks, two sessions each, about 90 minutes a day. Each session is something you read, then a short choice, then a place to write the design in your own words.</p>
-    <div class="pills"><span class="pill">${doneCount(state)} of 28 sessions marked done</span></div>
+    <div class="pills"><span class="pill">${doneCount(state)} of ${flat.length} sessions marked done</span></div>
     <p><a class="button" href="${lessonLink(next)}">Continue: ${escapeHtml(nextLesson.title)}</a></p>
+    <div class="row">
+      <button class="ghost" id="export-progress" type="button">Export progress</button>
+      <label class="button">Import progress<input id="import-progress" type="file" accept="application/json" hidden /></label>
+    </div>
     <h2>How to use a session</h2>
     <ol class="steps">
       <li>Read the situation, the idea, and the word list. Do not skip to the reference design.</li>
       <li>Make the choices. The line under a choice says what that choice does to the customer.</li>
-      <li>Write the seven notes at the bottom. That writing is the practice. Mark the session done when the notes exist, then come back the next day.</li>
+      <li>Place the boxes, do the arithmetic when the session asks for it, write the seven notes, and score each move. The session can be marked done only after that evidence is in the page.</li>
     </ol>
     <p class="muted">The companies you are practicing for are Google, Microsoft, Revolut, Monzo, Visa, Capital One, and JPMorgan Chase. Netflix and Uber are the case studies, not the interviewers. The lessons are the same on every device. The notes you type stay in that browser.</p>
     <h2>What you practice placing</h2>
@@ -160,6 +293,9 @@ function renderHome(state) {
       <li>An index for the row, and a partition key for the machine.</li>
       <li>One writer for money, and a queue for the work after you answer.</li>
     </ul>
+    <h2>Competencies</h2>
+    <p class="muted">A competency counts as practiced when you mark a session that uses it done. This is coverage, not a score. The 0–2 scores live on each session.</p>
+    <ul class="steps">${competencyList}</ul>
     <h2>Weeks</h2>
     <div class="week-list">${cards}</div>
   </article>`;
@@ -233,10 +369,31 @@ function renderLesson(state, file) {
         .join("")}</tbody></table>`;
   const review = showDebrief
     ? `<details class="reference"><summary>Open the reference design after you have written your notes</summary>${reviewBody}</details>`
-    : `<div class="callout warn"><strong>Write first</strong><p>This is a timed drill. Write the seven notes below before you open the case debrief and the reference design.</p><button class="primary" id="show-debrief">I have written my notes. Show the debrief.</button></div>`;
+    : `<div class="callout warn"><strong>Write first</strong><p>This is a timed drill. The debrief opens after each of the seven notes is a real paragraph.</p>${notesReady(state, file) ? `<button class="primary" id="show-debrief" type="button">Show the debrief</button>` : `<p>The notes are not there yet.</p>`}</div>`;
+  const caseNote = CASE_NOTES[file] ? `<p>${escapeHtml(CASE_NOTES[file])}</p>` : "";
   const caseBlock = showDebrief
-    ? `<h2>The case</h2><p>${escapeHtml(lesson.caseBody)}</p><p><a href="${escapeHtml(lesson.caseUrl)}" target="_blank" rel="noreferrer">${escapeHtml(lesson.caseLink)}</a></p>`
+    ? `<h2>The case</h2><p>${escapeHtml(lesson.caseBody)}</p>${caseNote}<p><a href="${escapeHtml(lesson.caseUrl)}" target="_blank" rel="noreferrer">${escapeHtml(lesson.caseLink)}</a></p>`
     : "";
+  const diagram = (state.diagrams && state.diagrams[file]) || { lanes: {}, truth: "" };
+  const diagramRows = DIAGRAM_NODES.map(([id, label]) => {
+    const lane = (diagram.lanes || {})[id] || "";
+    return `<div class="choice"><h3>${escapeHtml(label)}</h3><div class="row">
+      <button class="opt ${lane === "sync" ? "picked" : ""}" type="button" data-lane="${id}" data-where="sync">Caller waits</button>
+      <button class="opt ${lane === "async" ? "picked" : ""}" type="button" data-lane="${id}" data-where="async">After the answer</button>
+      <button class="opt ${lane === "out" ? "picked" : ""}" type="button" data-lane="${id}" data-where="out">Not in this design</button>
+      <button class="opt ${diagram.truth === id ? "picked" : ""}" type="button" data-truth="${id}">Source of truth</button>
+    </div></div>`;
+  }).join("");
+  const estimate = ESTIMATES[file];
+  const estimateState = (state.estimates && state.estimates[file]) || {};
+  const estimateBlock = estimate
+    ? `<h2>Do the arithmetic</h2><p>${escapeHtml(estimate.prompt)}</p><div class="row"><input id="estimate-input" type="number" aria-label="${escapeHtml(estimate.unit)}" placeholder="${escapeHtml(estimate.unit)}" value="${escapeHtml(estimateState.value || "")}" style="max-width:160px" /><button class="ghost" id="check-estimate" type="button">Check</button></div>${estimateState.message ? `<p class="muted">${escapeHtml(estimateState.message)}</p>` : ""}`
+    : "";
+  const scoreFields = NOTES.map(([id, label]) => {
+    const value = ((state.scores && state.scores[file]) || {})[id] || "";
+    return `<label class="note"><h3>${escapeHtml(label)}</h3><select data-score="${id}" aria-label="Score for ${escapeHtml(label)}"><option value="">Score</option><option value="0" ${value === "0" ? "selected" : ""}>0 missing</option><option value="1" ${value === "1" ? "selected" : ""}>1 named</option><option value="2" ${value === "2" ? "selected" : ""}>2 defended</option></select></label>`;
+  }).join("");
+  const missing = readiness(state, file);
   const code = lesson.codeLab
     ? `<div class="callout"><strong>Then run the code lab</strong><p>${escapeHtml(lesson.codeLab)}</p></div>`
     : "";
@@ -246,7 +403,7 @@ function renderLesson(state, file) {
   const next = index < flat.length - 1 ? flat[index + 1] : "";
   const done = state.done && state.done[file];
   return `<article class="sheet">
-    <p class="kicker"><a href="#/week/${week}">Week ${week}</a> · ${escapeHtml(lesson.minutes)}</p>
+    <p class="kicker">${week ? `<a href="#/week/${week}">Week ${week}</a>` : `<a href="#/">Foundations</a>`} · ${escapeHtml(lesson.minutes)}</p>
     <h1>${escapeHtml(lesson.title)}</h1>
     <div class="pills">
       <span class="pill">${escapeHtml(lesson.company)}</span>
@@ -270,15 +427,23 @@ function renderLesson(state, file) {
     ${code}
     <h2>The failure you have to handle</h2>
     <div class="callout warn"><strong>${escapeHtml(lesson.failureTitle)}</strong><p>${escapeHtml(lesson.failureBody)}</p></div>
+    <h2>Place the design</h2>
+    <p class="muted">Put each box on the path the caller waits for, on the path after you answer, or outside this design. Mark the one store that wins if the others disagree. Only a store should be the source of truth. A load balancer is not a source of truth.</p>
+    ${diagramRows}
+    ${estimateBlock}
     <h2>Choose, then read what it does</h2>
     <p class="muted">Pick the cut you would defend. If a line appears under it, that is the consequence, not the score. The reference design is below, after you write.</p>
     ${choices}
     <h2>Write the design</h2>
     <p class="muted">These notes stay in this browser. A 2 on the score is a number, a rule, or a failure. A 1 is only the name of the idea.</p>
     ${noteFields}
+    <h2>Score the seven moves</h2>
+    <p class="muted">0 is missing. 1 is only the name. 2 is a number, a rule, or a failure. These scores are how the home page knows what you have actually judged.</p>
+    ${scoreFields}
+    <p id="ready-warn" class="muted">${missing.length ? escapeHtml(`Before this can be marked done: ${missing.join(". ")}.`) : "The notes, the diagram, and the scores are enough to mark this done."}</p>
     <div class="row">
-      <button class="primary" id="mark-done">${done ? "Marked done" : "Mark this session done"}</button>
-      <a class="button" href="#/week/${week}">Back to week ${week}</a>
+      <button class="primary" id="mark-done" type="button" ${missing.length ? "disabled" : ""}>${done ? "Marked done" : "Mark this session done"}</button>
+      ${week ? `<a class="button" href="#/week/${week}">Back to week ${week}</a>` : `<a class="button" href="#/">Back home</a>`}
     </div>
     <h2>Reference design</h2>
     <p class="muted">Read this after your notes. It is one defensible design, not the only one. Compare the rule it protects with the rule you wrote.</p>
@@ -292,7 +457,7 @@ function renderLesson(state, file) {
 
 function shell(state, main, activeFile, weekOpen) {
   return `${renderSidebar(state, activeFile, weekOpen)}
-    <main class="main">
+    <main class="main" id="main">
       <button class="ghost menu-toggle" id="menu-toggle" type="button">Weeks</button>
       ${main}
     </main>`;
@@ -341,16 +506,115 @@ function render() {
       next.notes[activeFile] = next.notes[activeFile] || {};
       next.notes[activeFile][area.dataset.note] = area.value;
       saveState(next);
+      const missingNow = readiness(next, activeFile);
+      const button = document.getElementById("mark-done");
+      const warn = document.getElementById("ready-warn");
+      if (button) button.disabled = missingNow.length > 0;
+      if (warn) {
+        warn.textContent = missingNow.length
+          ? `Before this can be marked done: ${missingNow.join(". ")}.`
+          : "The notes, the diagram, and the scores are enough to mark this done.";
+      }
     });
   });
+  document.querySelectorAll("button[data-lane]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const next = loadState();
+      next.diagrams = next.diagrams || {};
+      const current = next.diagrams[activeFile] || { lanes: {}, truth: "" };
+      current.lanes = current.lanes || {};
+      current.lanes[button.dataset.lane] = button.dataset.where;
+      next.diagrams[activeFile] = current;
+      saveState(next);
+      render();
+    });
+  });
+  document.querySelectorAll("button[data-truth]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const next = loadState();
+      next.diagrams = next.diagrams || {};
+      const current = next.diagrams[activeFile] || { lanes: {}, truth: "" };
+      current.truth = button.dataset.truth;
+      next.diagrams[activeFile] = current;
+      saveState(next);
+      render();
+    });
+  });
+  document.querySelectorAll("select[data-score]").forEach((select) => {
+    select.addEventListener("change", () => {
+      const next = loadState();
+      next.scores = next.scores || {};
+      next.scores[activeFile] = next.scores[activeFile] || {};
+      next.scores[activeFile][select.dataset.score] = select.value;
+      saveState(next);
+      render();
+    });
+  });
+  const checkEstimate = document.getElementById("check-estimate");
+  if (checkEstimate) {
+    checkEstimate.addEventListener("click", () => {
+      const spec = ESTIMATES[activeFile];
+      const raw = document.getElementById("estimate-input").value;
+      const value = Number(raw);
+      const ok = Number.isFinite(value) && value >= spec.low && value <= spec.high;
+      const next = loadState();
+      next.estimates = next.estimates || {};
+      next.estimates[activeFile] = {
+        value: raw,
+        ok,
+        message: ok ? `That order of magnitude holds. ${spec.method}` : `Not yet. ${spec.method}`,
+      };
+      saveState(next);
+      render();
+    });
+  }
   const doneButton = document.getElementById("mark-done");
   if (doneButton) {
     doneButton.addEventListener("click", () => {
       const next = loadState();
+      if (readiness(next, activeFile).length) return;
       next.done = next.done || {};
       next.done[activeFile] = true;
+      next.schemaVersion = 1;
       saveState(next);
       render();
+    });
+  }
+  const exportButton = document.getElementById("export-progress");
+  if (exportButton) {
+    exportButton.addEventListener("click", () => {
+      const payload = { schemaVersion: 1, exportedAt: new Date().toISOString(), ...loadState() };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "system-design-progress.json";
+      link.click();
+      URL.revokeObjectURL(link.href);
+    });
+  }
+  const importInput = document.getElementById("import-progress");
+  if (importInput) {
+    importInput.addEventListener("change", () => {
+      const file = importInput.files && importInput.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const parsed = JSON.parse(String(reader.result));
+          if (!parsed || typeof parsed !== "object" || (!parsed.notes && !parsed.done && !parsed.scores)) {
+            throw new Error("missing progress");
+          }
+          delete parsed.exportedAt;
+          parsed.schemaVersion = 1;
+          saveState(parsed);
+          render();
+        } catch (error) {
+          const status = document.createElement("p");
+          status.textContent = "That file is not a progress export from this reader.";
+          document.getElementById("main").prepend(status);
+        }
+      };
+      reader.readAsText(file);
     });
   }
   const debrief = document.getElementById("show-debrief");

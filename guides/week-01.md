@@ -4,10 +4,10 @@ Week 1 does not teach a new database or a new framework. It teaches the opening 
 
 You do two 90-minute sessions:
 
-1. [Card authorization estimates](/Users/anvitharaobuddabathuni/.cursor/projects/Users-anvitharaobuddabathuni-system-design-ai-assist/canvases/week-01-card-authorization.canvas.tsx) — a card tap at a shop terminal.
-2. [Repair a banking chatbot design](/Users/anvitharaobuddabathuni/.cursor/projects/Users-anvitharaobuddabathuni-system-design-ai-assist/canvases/week-01-banking-chatbot-critique.canvas.tsx) — a proposal that lets a language model move money.
+1. Card authorization estimates, in the reader — a card tap at a shop terminal.
+2. Repair a banking chatbot design, in the reader — a proposal that lets a language model move money.
 
-Open each link so a panel appears beside the chat. The `.canvas.tsx` file is the source code of that panel. Reading the file top to bottom shows every question and the hidden review at once, which skips the exercise. Click the link.
+Open them from the site. Read the page from the top. The reference design stays closed until you open it.
 
 ## Goal
 

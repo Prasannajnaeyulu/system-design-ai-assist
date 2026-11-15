@@ -1,0 +1,23 @@
+name: Docs
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  links:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reject local canvas paths
+        run: |
+          if grep -R -n -E "/Users/|\.canvas\.tsx" README.md guides; then
+            echo "README or guides still point at a local canvas."
+            exit 1
+          fi
+          test -f web/index.html
+          test -f web/app.js
+          test -f web/content.js
+          test -f web/mechanisms.js
+          test -f web/foundations.js

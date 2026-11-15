@@ -24,18 +24,14 @@ Staff judgment still comes from shipping systems after the program. Hire-level h
 
 ## How a day works
 
-1. **15 minutes — one idea.** One mechanism, one number, one failure. The workshop names the DDIA chapter idea so you can map it back to the book. The workshop does not paste the book.
-2. **20 minutes — one case.** Netflix or Uber is the case file. Read for the decision and what they gave up. Write five lines in the journal. Do not summarize the post.
-3. **45 minutes — the workshop.** Open the canvas beside the chat. Each decision unlocks the next one. Then the lab injects a failure.
-4. **10 minutes — the journal.** Copy [`journal/template.md`](journal/template.md) to `journal/<lab-name>.md` and fill it.
+The reader in `web/` is the course. Open the site above, or the local server. Do the three foundation sessions first, then the weeks in order.
 
-The canvas reveals the staff review only after you commit a source of truth and an idempotency story, and after you say what the failure does. Timed drills stay closed-book until the journal is submitted in the canvas.
+1. **Read the idea.** One mechanism, one failure, and where it sits behind a load balancer. The page names the DDIA chapter. It does not paste the book.
+2. **Read the case for the decision**, not for a summary. Write what they gave up.
+3. **Place the diagram, do the arithmetic when the page asks, and write the seven notes.** The reference design stays closed on a timed drill until those notes are real paragraphs.
+4. **Score each move 0, 1, or 2.** You cannot mark the session done until the seven notes and the scores are filled.
 
-A canvas is a live panel you open beside the chat. Click a link below. The `.canvas.tsx` file is the source of that panel. Reading it top to bottom shows later questions and the hidden review early, which skips the exercise.
-
-Start from [Training home](/Users/anvitharaobuddabathuni/.cursor/projects/Users-anvitharaobuddabathuni-system-design-ai-assist/canvases/training-home.canvas.tsx). Mark a lab there only after its journal exists. Read [guides/how-a-session-works.md](guides/how-a-session-works.md) once. The dropdown is a warm-up. The writing after the failure is the lab.
-
-Week 1 has a plain-language guide for the goal, the flow, and the payment words. Read it before the first panel: [guides/week-01.md](guides/week-01.md). The card lab asks you to compute a day's storage and to place each step on the path the customer waits for, or the path that may finish later. The ledger lab in week 2 does the same for a balance check versus a home-screen feed. Later labs are still three choices and a writeup. Use them the same way.
+Notes stay in this browser. Use Export on the home page if you switch devices. [`journal/template.md`](journal/template.md) is the same seven moves on paper. [`guides/week-01.md`](guides/week-01.md) explains the card-payment words.
 
 ## The seven moves
 
@@ -69,6 +65,7 @@ Read the chapter for the idea. The workshops teach the decision.
 
 | Weeks | Chapter idea | Where you use it |
 | --- | --- | --- |
+| Foundations | Ch 2. Data models. Ch 3. Storage and indexes. Ch 4. Encoding and schema change. | Accounts versus documents, B-tree versus LSM, old and new payment events |
 | 1 | Ch 1. Reliable, scalable, maintainable. Percentiles, not averages. | Auth estimates, chatbot critique |
 | 2 | Ch 5 and 9. Replication lag and consistency models. Ch 7. Transactions. | Ledger versus feed, charge idempotency |
 | 3 | Ch 12. Derived data. Ch 6. Partitioning and hot keys. | Cache boundaries, partition keys |
@@ -80,81 +77,11 @@ Read the chapter for the idea. The workshops teach the decision.
 | 12–13 | Ch 10 and 11. Point-in-time derived features. Ch 2 and 12. Document access and rebuildable indexes. | Feature platform, serving, RAG, eval and cost |
 | 14 | All of the above on one system | Payment-risk capstone and the mock |
 
-## Workshops
+## Sessions
 
-Do them in order. The AI labs assume the ledger and the outbox.
+Do them in the reader, in order. Start with the three foundation sessions, then week 1. The AI labs assume the ledger and the outbox. Read [guides/week-01.md](guides/week-01.md) before the card-authorization session.
 
-### Week 1 — The method
-
-Read [guides/week-01.md](guides/week-01.md) first. The week teaches the opening of a design: cut scope, pick the number that sizes disk versus the number that sizes servers, name the source of truth, and say what a timeout must not do. Session 1 is a card tap. Session 2 is a chatbot that must not become the ledger. You are not designing clearing, a full ledger, or a model platform yet.
-
-- [Card authorization estimates](/Users/anvitharaobuddabathuni/.cursor/projects/Users-anvitharaobuddabathuni-system-design-ai-assist/canvases/week-01-card-authorization.canvas.tsx)
-- [Repair a banking chatbot design](/Users/anvitharaobuddabathuni/.cursor/projects/Users-anvitharaobuddabathuni-system-design-ai-assist/canvases/week-01-banking-chatbot-critique.canvas.tsx)
-
-### Week 2 — Consistency and idempotency
-
-- [Ledger versus activity feed](/Users/anvitharaobuddabathuni/.cursor/projects/Users-anvitharaobuddabathuni-system-design-ai-assist/canvases/week-02-ledger-vs-feed.canvas.tsx)
-- [Charge idempotency](/Users/anvitharaobuddabathuni/.cursor/projects/Users-anvitharaobuddabathuni-system-design-ai-assist/canvases/week-02-charge-idempotency.canvas.tsx) — then run `python3 labs/idempotency/charge.py`
-
-### Week 3 — Cache and partitioning
-
-- [Cache boundaries](/Users/anvitharaobuddabathuni/.cursor/projects/Users-anvitharaobuddabathuni-system-design-ai-assist/canvases/week-03-cache-boundaries.canvas.tsx)
-- [Partitioning payments and features](/Users/anvitharaobuddabathuni/.cursor/projects/Users-anvitharaobuddabathuni-system-design-ai-assist/canvases/week-03-partitioning.canvas.tsx)
-
-### Week 4 — Async and failure
-
-- [Settlement outbox](/Users/anvitharaobuddabathuni/.cursor/projects/Users-anvitharaobuddabathuni-system-design-ai-assist/canvases/week-04-settlement-outbox.canvas.tsx) — then run `python3 labs/outbox/outbox.py`
-- [Retries and poison messages](/Users/anvitharaobuddabathuni/.cursor/projects/Users-anvitharaobuddabathuni-system-design-ai-assist/canvases/week-04-retries-and-poison.canvas.tsx)
-
-### Week 5 — Limits and notifications
-
-- [Rate limiter](/Users/anvitharaobuddabathuni/.cursor/projects/Users-anvitharaobuddabathuni-system-design-ai-assist/canvases/week-05-rate-limiter.canvas.tsx)
-- [Notification drill, closed book](/Users/anvitharaobuddabathuni/.cursor/projects/Users-anvitharaobuddabathuni-system-design-ai-assist/canvases/week-05-notification-drill.canvas.tsx)
-
-### Week 6 — Feeds and ranking
-
-- [Account activity feed](/Users/anvitharaobuddabathuni/.cursor/projects/Users-anvitharaobuddabathuni-system-design-ai-assist/canvases/week-06-activity-feed.canvas.tsx)
-- [Netflix personalization path](/Users/anvitharaobuddabathuni/.cursor/projects/Users-anvitharaobuddabathuni-system-design-ai-assist/canvases/week-06-netflix-personalization.canvas.tsx)
-
-### Week 7 — Marketplace
-
-- [Uber dispatch](/Users/anvitharaobuddabathuni/.cursor/projects/Users-anvitharaobuddabathuni-system-design-ai-assist/canvases/week-07-uber-dispatch.canvas.tsx)
-- [Location fan-out drill, closed book](/Users/anvitharaobuddabathuni/.cursor/projects/Users-anvitharaobuddabathuni-system-design-ai-assist/canvases/week-07-location-fanout-drill.canvas.tsx)
-
-### Week 8 — Delivery and SLOs
-
-- [Video delivery path](/Users/anvitharaobuddabathuni/.cursor/projects/Users-anvitharaobuddabathuni-system-design-ai-assist/canvases/week-08-video-delivery.canvas.tsx)
-- [SLOs for payments and models](/Users/anvitharaobuddabathuni/.cursor/projects/Users-anvitharaobuddabathuni-system-design-ai-assist/canvases/week-08-slo-and-metrics.canvas.tsx)
-
-### Week 9 — Ledger and payment states
-
-- [Double-entry ledger](/Users/anvitharaobuddabathuni/.cursor/projects/Users-anvitharaobuddabathuni-system-design-ai-assist/canvases/week-09-double-entry-ledger.canvas.tsx) — then run `python3 labs/ledger/ledger.py`
-- [Auth, capture, refund](/Users/anvitharaobuddabathuni/.cursor/projects/Users-anvitharaobuddabathuni-system-design-ai-assist/canvases/week-09-payment-state-machine.canvas.tsx)
-
-### Week 10 — Breaks and fraud
-
-- [Reconciliation](/Users/anvitharaobuddabathuni/.cursor/projects/Users-anvitharaobuddabathuni-system-design-ai-assist/canvases/week-10-reconciliation.canvas.tsx)
-- [Fraud decision](/Users/anvitharaobuddabathuni/.cursor/projects/Users-anvitharaobuddabathuni-system-design-ai-assist/canvases/week-10-fraud-decision.canvas.tsx)
-
-### Week 11 — Wallets
-
-- [Wallet and payouts](/Users/anvitharaobuddabathuni/.cursor/projects/Users-anvitharaobuddabathuni-system-design-ai-assist/canvases/week-11-wallet-payouts.canvas.tsx)
-- [Payment platform drill, closed book](/Users/anvitharaobuddabathuni/.cursor/projects/Users-anvitharaobuddabathuni-system-design-ai-assist/canvases/week-11-payment-platform-drill.canvas.tsx)
-
-### Week 12 — Model platform
-
-- [Feature platform](/Users/anvitharaobuddabathuni/.cursor/projects/Users-anvitharaobuddabathuni-system-design-ai-assist/canvases/week-12-feature-platform.canvas.tsx)
-- [Model serving](/Users/anvitharaobuddabathuni/.cursor/projects/Users-anvitharaobuddabathuni-system-design-ai-assist/canvases/week-12-model-serving.canvas.tsx)
-
-### Week 13 — Retrieval and eval
-
-- [RAG over financial documents](/Users/anvitharaobuddabathuni/.cursor/projects/Users-anvitharaobuddabathuni-system-design-ai-assist/canvases/week-13-financial-rag.canvas.tsx)
-- [Eval and cost](/Users/anvitharaobuddabathuni/.cursor/projects/Users-anvitharaobuddabathuni-system-design-ai-assist/canvases/week-13-eval-and-cost.canvas.tsx)
-
-### Week 14 — Capstone
-
-- [Payment-risk platform](/Users/anvitharaobuddabathuni/.cursor/projects/Users-anvitharaobuddabathuni-system-design-ai-assist/canvases/week-14-payment-risk-capstone.canvas.tsx)
-- [Full mock, closed book](/Users/anvitharaobuddabathuni/.cursor/projects/Users-anvitharaobuddabathuni-system-design-ai-assist/canvases/week-14-mock-interview.canvas.tsx)
+Week 2 also runs `python3 labs/idempotency/charge.py`. Week 4 runs `python3 labs/outbox/outbox.py`. Week 9 runs `python3 labs/ledger/ledger.py`.
 
 ## Code labs
 
@@ -170,5 +97,5 @@ python3 labs/ledger/ledger.py
 
 - Every workshop is money, a marketplace, or a model.
 - State a source of truth and an idempotency story before the review will open.
-- Timed drills are closed-book. The canvas hides the case debrief and the staff review until the journal is in.
+- Timed drills stay closed until the seven notes are written in the reader.
 - If a week slips, repeat the drill. Do not skip the financial weeks. The AI labs assume the ledger and the outbox.

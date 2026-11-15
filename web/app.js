@@ -33,13 +33,13 @@ const WEEKS = [
 ];
 
 const NOTES = [
-  ["scope", "Scope", "Who is the user, what is in this hour, and what you will not design."],
-  ["estimates", "Estimates", "Average for disk. Peak and p99 for servers and speed. Show the arithmetic."],
-  ["truth", "Source of truth", "The record that wins if a cache, a copy, or a model disagrees."],
-  ["diagram", "Sync and async", "What the caller waits for, and what may finish after you have answered."],
-  ["dive", "Deep dive", "The one component you would defend, and the rule it protects."],
-  ["failure", "Failure", "What the caller sees, and what must not happen twice."],
-  ["tradeoff", "Tradeoff", "What you optimized, and what you gave up."],
+  ["scope", "Scope", "Who is this for, what will you decide today, and what will you leave out?", "This is for ___. Today I will decide ___. I will not design ___."],
+  ["estimates", "Estimates", "Do the arithmetic if the page gave you numbers. A normal day is how much you store. A busy moment is how fast it must be.", "A normal day is ___. A busy moment is ___. So I store about ___, and the slow ones must finish in ___."],
+  ["truth", "Source of truth", "If two copies of the data disagree, which one wins?", "If two copies disagree, ___ wins, because ___."],
+  ["diagram", "Sync and async", "What must finish before you answer the person? What can finish after you have already answered?", "The person waits for ___. After I answer, ___ can finish."],
+  ["dive", "Deep dive", "Pick one piece you would explain carefully. What rule must it not break?", "I would explain ___. The rule it protects is ___."],
+  ["failure", "Failure", "When something breaks, what does the person see? What must not happen twice?", "When ___ breaks, the person sees ___. What must not happen twice is ___."],
+  ["tradeoff", "Tradeoff", "What did you make better, and what got worse because of that?", "I made ___ better. What got worse is ___."],
 ];
 
 const BANKING = [
@@ -429,8 +429,8 @@ function renderLesson(state, file) {
       return `<div class="choice"><h3>${escapeHtml(choice.prompt)}</h3>${options}${staff}</div>`;
     })
     .join("");
-  const noteFields = NOTES.map(([id, label, hint]) => {
-    return `<label class="note"><h3>${escapeHtml(label)}</h3><p class="faint">${escapeHtml(hint)}</p><textarea data-note="${id}">${escapeHtml(notes[id] || "")}</textarea></label>`;
+  const noteFields = NOTES.map(([id, label, hint, starter]) => {
+    return `<div class="note"><h3 id="note-${id}">${escapeHtml(label)}</h3><p class="faint">${escapeHtml(hint)}</p><textarea data-note="${id}" aria-labelledby="note-${id}" placeholder="${escapeHtml(starter)}">${escapeHtml(notes[id] || "")}</textarea></div>`;
   }).join("");
   const reviewBody = `<div class="callout"><strong>Reference design</strong><p>${escapeHtml(window.neutralizeClaims(lesson.reviewIntro))}</p>${lesson.review
     .map((paragraph) => `<p>${escapeHtml(window.neutralizeClaims(paragraph))}</p>`)
@@ -457,7 +457,7 @@ function renderLesson(state, file) {
     : "";
   const scoreFields = NOTES.map(([id, label]) => {
     const value = ((state.scores && state.scores[file]) || {})[id] || "";
-    return `<label class="note"><h3>${escapeHtml(label)}</h3><select data-score="${id}" aria-label="Score for ${escapeHtml(label)}"><option value="">Score</option><option value="0" ${value === "0" ? "selected" : ""}>0 missing</option><option value="1" ${value === "1" ? "selected" : ""}>1 named</option><option value="2" ${value === "2" ? "selected" : ""}>2 defended</option></select></label>`;
+    return `<label class="score"><span>${escapeHtml(label)}</span><select data-score="${id}" aria-label="Score for ${escapeHtml(label)}"><option value="">Not yet</option><option value="0" ${value === "0" ? "selected" : ""}>0 I skipped it</option><option value="1" ${value === "1" ? "selected" : ""}>1 I only named it</option><option value="2" ${value === "2" ? "selected" : ""}>2 I gave a reason</option></select></label>`;
   }).join("");
   const missing = readiness(state, file);
   const code = lesson.codeLab
@@ -491,10 +491,10 @@ function renderLesson(state, file) {
     ${diagramRows}
     ${estimateBlock}
     <h2>Write the design</h2>
-    <p class="muted">These notes stay in this browser. A 2 on the score is a number, a rule, or a failure. A 1 is only the name of the idea.</p>
+    <p class="muted">This is the point of the page. Seven short answers, as if you were explaining the design out loud. The blanks in each box show the shape of the sentence. Your words stay in this browser. The lesson below opens after each answer is a short paragraph.</p>
     ${noteFields}
     <h2>Score the seven moves</h2>
-    <p class="muted">0 is missing. 1 is only the name. 2 is a number, a rule, or a failure. These scores are how the home page knows what you have actually judged.</p>
+    <p class="muted">After you write, mark each answer. 0 means you skipped it. 1 means you only named the idea. 2 means you gave a reason.</p>
     ${scoreFields}
     <p id="ready-warn" class="muted">${missing.length ? escapeHtml(`Before this can be marked done: ${missing.join(". ")}.`) : "The notes, the diagram, and the scores are enough to mark this done."}</p>
     <div class="row">

@@ -314,7 +314,7 @@ function renderHome(state) {
     <p class="muted">Notes, scores, and diagram choices stay in this browser. Nothing is sent to a server. Export the file before you switch devices. Clearing removes them from this browser only.</p>
     <h2>How to use a session</h2>
     <ol class="steps">
-      <li>Read the situation, the givens, and the failure. That is the whole prompt.</li>
+      <li>Read the situation, the numbers, and the failure. That is the question.</li>
       <li>Place the boxes and write the seven notes before you read further. The idea, the choices, and the reference open after those notes are paragraphs.</li>
       <li>Then compare, score each move, and mark the session done.</li>
     </ol>
@@ -442,8 +442,9 @@ function renderLesson(state, file) {
     ${lesson.plain ? `<div class="callout good"><strong>The one job</strong><p>${escapeHtml(lesson.plain)}</p></div>` : ""}
     <p class="lead">${escapeHtml(lesson.brief)}</p>
     ${prompt}
-    ${written ? "" : `<div class="callout warn"><strong>Write first</strong><p>This is the prompt. The idea, the word list, the case, the choices, and the reference stay closed until each of the seven notes is a short paragraph. The numbers below are the givens.</p></div>`}
-    <h2>Givens</h2>
+    ${written ? "" : `<div class="callout warn"><strong>A note to you</strong><p>This box is not part of the design. It is a reminder for the person studying. Answer in the seven notes further down before you read the lesson. The explanation, the word list, the article, the choices, and one sample answer stay hidden until each note is a short paragraph. That is the practice: decide first, then compare.</p></div>`}
+    <h2>Numbers you can use</h2>
+    <p class="muted">These are facts about the problem. They are not the answer.</p>
     <div class="stats">${stats}</div>
     <h2>The failure you have to handle</h2>
     <div class="callout warn"><strong>${escapeHtml(lesson.failureTitle)}</strong><p>${escapeHtml(lesson.failureBody)}</p></div>

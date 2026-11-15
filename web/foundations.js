@@ -20,10 +20,10 @@ window.FOUNDATIONS = [
     codeLab: "",
     sealed: "",
     numbers: [
-      { value: "4", label: "Facts to place" },
-      { value: "1", label: "Primary query" },
-      { value: "0", label: "Models that fit every query" },
-      { value: "7 yr", label: "How long a posting is kept" }
+      { value: "4", label: "Different facts in this hour" },
+      { value: "1", label: "Question that has to be fast: this account, right now" },
+      { value: "0", label: "Ways of storing data that fit every question" },
+      { value: "7 yr", label: "How long you keep one record that money moved" }
     ],
     tableHeaders: ["Fact", "Question you must answer fast", "Shape that fits"],
     tableRows: [

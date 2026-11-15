@@ -16,15 +16,15 @@ const ORDER = [
 ];
 
 const WEEKS = [
-  ["The method", "Start a design before you draw boxes. Cut the scope, pick the number that sizes disk and the number that sizes speed, and say what a timeout must not do."],
-  ["Consistency and idempotency", "A balance that approves a card cannot be a few seconds stale. A charge is safe to retry only when the key and the debit are saved together."],
-  ["Cache and partitioning", "A cache is a copy you can rebuild. Catalog text can be copied. A balance used to approve a card cannot. Then split data so one account or one entity stays on one partition."],
-  ["Async and failure", "Save the business change and the message in one transaction. A retry repeats the same attempt. Some messages must stop instead of retrying forever."],
-  ["Limits and notifications", "Protect a money or model endpoint with a limit. Then design payment receipts so one charge cannot become four texts."],
+  ["The method", "Start a design before you draw boxes. Place a load balancer and a stateless service, then cut the scope, estimate, and say what a timeout must not do."],
+  ["Consistency and idempotency", "A balance that approves a card cannot be a few seconds stale. The index finds the account. A unique index, not an if-statement on one server, makes the retry safe."],
+  ["Cache, indexes, and partitions", "A cache is a copy you can rebuild. An index finds a row. A partition key chooses the machine. A balance used to approve a card cannot be the cache."],
+  ["Async and failure", "Save the business change and the queue message in one transaction. A cloud queue delivers more than once. A retry repeats the same attempt, and a poison message has to stop."],
+  ["Load balancing and notifications", "Limit a money or model route where every instance shares the count. Then design payment receipts as workers on a queue, not as another hop on the card tap."],
   ["Feeds and ranking", "An activity list is derived from the ledger. A homepage of titles is a heavy job done ahead of time, plus a fast rank on the request."],
   ["Marketplace", "A match has a deadline. Live locations are a different path from the history of where someone was."],
-  ["Delivery and SLOs", "Video is upload, transcode, and a cache near the viewer. Then name the latency and error numbers you would actually page on."],
-  ["Ledger and payment states", "Money is entries that sum to zero. Authorization, capture, and refund are states. A timeout is not a decline."],
+  ["Delivery and SLOs", "Video is object storage, workers, and a cache near the viewer. Then name the latency and error numbers you would page on, including the load balancer and a lost zone."],
+  ["Ledger and payment states", "Money is entries that sum to zero, on one writer, found by an index and guarded by a lock. Authorization, capture, and refund are states. A timeout is not a decline."],
   ["Breaks and fraud", "After an outage, compare two logs. Do not silently rewrite the ledger. A fraud score has a deadline and a named fallback."],
   ["Wallets", "A wallet cannot go negative and a payout cannot be lost. Then design a slice of a payment platform on a timer."],
   ["Model platform", "The features used to train and the features used to serve must be the same moment in time. If the model is down, the ledger still says what the money did."],
@@ -52,6 +52,11 @@ const GLOSSARY = [
   ["Primary", "The copy that accepts the write."],
   ["Follower", "A copy that receives the write afterward and can be seconds behind."],
   ["Ack", "The moment you tell the caller the operation succeeded."],
+  ["Load balancer", "Sends a request to a healthy instance. It does not decide the payment."],
+  ["Index", "A lookup the database maintains so you find a row without scanning the table."],
+  ["Partition key", "Which machine stores this account or entity."],
+  ["Cache-aside", "Read the cache. On a miss, read the source and fill the cache."],
+  ["Stateless", "Any instance can take the next request because the durable data is elsewhere."],
 ];
 
 const byFile = Object.fromEntries(window.LESSONS.map((lesson) => [lesson.file, lesson]));
@@ -77,6 +82,16 @@ function escapeHtml(value) {
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;");
+}
+
+function mechanismBlock(file) {
+  const block = window.MECHANISMS && window.MECHANISMS[file];
+  if (!block) return "";
+  const paragraphs = block.paragraphs.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("");
+  const terms = block.terms
+    .map(([term, meaning]) => `<tr><td>${escapeHtml(term)}</td><td>${escapeHtml(meaning)}</td></tr>`)
+    .join("");
+  return `<h2>${escapeHtml(block.title)}</h2>${paragraphs}<table><thead><tr><th>Term</th><th>In this session</th></tr></thead><tbody>${terms}</tbody></table>`;
 }
 
 function weekOf(file) {
@@ -137,6 +152,14 @@ function renderHome(state) {
       <li>Write the seven notes at the bottom. That writing is the practice. Mark the session done when the notes exist, then come back the next day.</li>
     </ol>
     <p class="muted">The companies you are practicing for are Google, Microsoft, Revolut, Monzo, Visa, Capital One, and JPMorgan Chase. Netflix and Uber are the case studies, not the interviewers. The lessons are the same on every device. The notes you type stay in that browser.</p>
+    <h2>What you practice placing</h2>
+    <p>Every session asks where the durable data lives in a cloud deployment. The service copies are replaceable. The database, the queue, and the file store are not.</p>
+    <ul class="steps">
+      <li>A load balancer and stateless instances in more than one zone.</li>
+      <li>A cache only for data you can rebuild and can afford to serve stale.</li>
+      <li>An index for the row, and a partition key for the machine.</li>
+      <li>One writer for money, and a queue for the work after you answer.</li>
+    </ul>
     <h2>Weeks</h2>
     <div class="week-list">${cards}</div>
   </article>`;
@@ -237,6 +260,7 @@ function renderLesson(state, file) {
     <p>${escapeHtml(lesson.idea)}</p>
     <div class="callout"><strong>${escapeHtml(lesson.ddiaTitle)}</strong><p>${escapeHtml(lesson.ddiaBody)}</p></div>
     <div class="callout"><strong>${escapeHtml(lesson.barTitle)}</strong><p>${escapeHtml(lesson.barBody)}</p></div>
+    ${mechanismBlock(file)}
     <h2>${lesson.words && lesson.words.length ? "Words this session uses" : "Words that show up in every session"}</h2>
     ${wordTable}
     <h2>Numbers</h2>

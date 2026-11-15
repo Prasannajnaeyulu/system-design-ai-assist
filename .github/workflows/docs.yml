@@ -21,3 +21,4 @@ jobs:
           test -f web/content.js
           test -f web/mechanisms.js
           test -f web/foundations.js
+          node web/check-claims.js

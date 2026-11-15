@@ -134,13 +134,38 @@ const COMPETENCY_OF = {
 };
 
 const CASE_NOTES = {
-  "week-06-netflix-personalization": "Decision to keep: candidates are computed before the request, and ranking has a deadline. Do not copy their services. A fraud score has the same shape: heavy features ahead of time, a small fresh lookup on the tap.",
-  "week-07-uber-dispatch": "Decision to keep: index space by cell because a scan of every driver misses the deadline. Do not copy H3 into a ledger. A ledger is not a map.",
+  "week-06-netflix-personalization": "The 2013 post is a historical architecture. Decision to keep: candidates are computed before the request, and ranking has a deadline. A 2025 post describes a foundation model for preferences. Do not describe the 2013 pipeline as the current stack, and do not copy their services. A fraud score has the same shape: heavy features ahead of time, a small fresh lookup on the tap.",
+  "week-07-uber-dispatch": "Decision to keep: a spatial index so a nearby lookup is not a scan of every driver. The neighbor-cell search in this exercise is inspired by H3. It is not a documented Uber dispatch algorithm. Do not copy a hex index into a ledger.",
   "week-02-ledger-vs-feed": "Decision to keep: one read must see the latest commit and another may lag. Their hex index is a neighboring problem. The lesson is the cut, not the hexes.",
   "foundation-data-models": "Decision to keep: the ledger stays a zero-sum record while the platform around it changes. Do not copy the org chart of services.",
 };
 
 const storageKey = "sd-training-reader-v1";
+
+function plainEnough(value, depth) {
+  if (depth > 6) return false;
+  if (value == null || typeof value === "boolean") return true;
+  if (typeof value === "number") return Number.isFinite(value);
+  if (typeof value === "string") return value.length <= 8000;
+  if (Array.isArray(value)) return value.every((item) => plainEnough(item, depth + 1));
+  if (typeof value === "object") return Object.values(value).every((item) => plainEnough(item, depth + 1));
+  return false;
+}
+
+function cleanImport(raw) {
+  const parsed = JSON.parse(raw);
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("shape");
+  const next = { schemaVersion: 1 };
+  for (const key of ["notes", "picks", "done", "debrief", "diagrams", "estimates", "scores"]) {
+    if (parsed[key] == null) continue;
+    if (!plainEnough(parsed[key], 0)) throw new Error("value");
+    next[key] = parsed[key];
+  }
+  if (typeof parsed.last === "string" && parsed.last.length < 200) next.last = parsed.last;
+  if (!next.notes && !next.done && !next.scores && !next.diagrams) throw new Error("empty");
+  if (JSON.stringify(next).length > 1000000) throw new Error("size");
+  return next;
+}
 
 function loadState() {
   try {
@@ -233,11 +258,11 @@ function renderSidebar(state, activeFile, weekOpen) {
           .map((id) => {
             const lesson = byFile[id];
             const mark = state.done && state.done[id] ? "Done" : "";
-            return `<a class="lesson-link ${id === activeFile ? "active" : ""}" href="${lessonLink(id)}">${escapeHtml(lesson.title)} <span class="dot">${mark}</span></a>`;
+            return `<a class="lesson-link ${id === activeFile ? "active" : ""}" href="${lessonLink(id)}" ${id === activeFile ? 'aria-current="page"' : ""}>${escapeHtml(lesson.title)} <span class="dot">${mark}</span></a>`;
           })
           .join("")
       : "";
-    return `<a class="week-link ${open ? "active" : ""}" href="#/week/${week}"><span>Week ${week}</span><span class="dot">${doneCount(state, week)}/2</span></a>${lessons}`;
+    return `<a class="week-link ${open ? "active" : ""}" href="#/week/${week}" ${open ? 'aria-current="page"' : ""}><span>Week ${week}</span><span class="dot">${doneCount(state, week)}/2</span></a>${lessons}`;
   }).join("");
   const foundations = foundationIds
     .map((id) => {
@@ -284,7 +309,9 @@ function renderHome(state) {
     <div class="row">
       <button class="ghost" id="export-progress" type="button">Export progress</button>
       <label class="button">Import progress<input id="import-progress" type="file" accept="application/json" hidden /></label>
+      <button class="ghost" id="clear-progress" type="button">Clear progress on this browser</button>
     </div>
+    <p class="muted">Notes, scores, and diagram choices stay in this browser. Nothing is sent to a server. Export the file before you switch devices. Clearing removes them from this browser only.</p>
     <h2>How to use a session</h2>
     <ol class="steps">
       <li>Read the situation, the givens, and the failure. That is the whole prompt.</li>
@@ -360,7 +387,7 @@ function renderLesson(state, file) {
         .join("");
       const staff =
         written && picks[choice.id]
-          ? `<p class="muted">${escapeHtml(choice.staff)}</p>`
+          ? `<p class="muted">${escapeHtml(window.neutralizeClaims(choice.staff))}</p>`
           : "";
       return `<div class="choice"><h3>${escapeHtml(choice.prompt)}</h3>${options}${staff}</div>`;
     })
@@ -368,14 +395,14 @@ function renderLesson(state, file) {
   const noteFields = NOTES.map(([id, label, hint]) => {
     return `<label class="note"><h3>${escapeHtml(label)}</h3><p class="faint">${escapeHtml(hint)}</p><textarea data-note="${id}">${escapeHtml(notes[id] || "")}</textarea></label>`;
   }).join("");
-  const reviewBody = `<div class="callout"><strong>Reference design</strong><p>${escapeHtml(lesson.reviewIntro)}</p>${lesson.review
-    .map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`)
+  const reviewBody = `<div class="callout"><strong>Reference design</strong><p>${escapeHtml(window.neutralizeClaims(lesson.reviewIntro))}</p>${lesson.review
+    .map((paragraph) => `<p>${escapeHtml(window.neutralizeClaims(paragraph))}</p>`)
     .join("")}</div>
       <table><thead><tr><th>Move</th><th>What a strong answer includes</th></tr></thead><tbody>${lesson.rubric
         .map((row) => `<tr><td>${escapeHtml(row[0])}</td><td>${escapeHtml(row[1])}</td></tr>`)
         .join("")}</tbody></table>`;
   const caseNote = CASE_NOTES[file] ? `<p>${escapeHtml(CASE_NOTES[file])}</p>` : "";
-  const caseBlock = `<h2>The case</h2><p>${escapeHtml(lesson.caseBody)}</p>${caseNote}<p><a href="${escapeHtml(lesson.caseUrl)}" target="_blank" rel="noreferrer">${escapeHtml(lesson.caseLink)}</a></p>`;
+  const caseBlock = `<h2>The case</h2><p>${escapeHtml(lesson.caseBody)}</p>${caseNote}${window.sourceCards(lesson.caseUrl)}<p><a href="${escapeHtml(lesson.caseUrl)}" target="_blank" rel="noreferrer">${escapeHtml(lesson.caseLink)}</a></p>`;
   const diagram = (state.diagrams && state.diagrams[file]) || { lanes: {}, truth: "" };
   const diagramRows = DIAGRAM_NODES.map(([id, label]) => {
     const lane = (diagram.lanes || {})[id] || "";
@@ -438,8 +465,8 @@ function renderLesson(state, file) {
     ${written ? `<h2>The lesson</h2>
     ${lesson.goal ? `<div class="callout good"><strong>Goal of this session</strong><p>${escapeHtml(lesson.goal)}</p></div>` : ""}
     <p>${escapeHtml(lesson.idea)}</p>
-    <div class="callout"><strong>${escapeHtml(lesson.ddiaTitle)}</strong><p>${escapeHtml(lesson.ddiaBody)}</p></div>
-    <div class="callout"><strong>${escapeHtml(lesson.barTitle)}</strong><p>${escapeHtml(lesson.barBody)}</p></div>
+    <div class="callout"><strong>${escapeHtml(window.withEditions(lesson.ddiaTitle))}</strong><p>${escapeHtml(window.withEditions(lesson.ddiaBody))}</p></div>
+    <div class="callout"><strong>Interview signal</strong><p>${escapeHtml(window.neutralizeClaims(lesson.barBody))}</p></div>
     ${mechanismBlock(file)}
     <h2>${lesson.words && lesson.words.length ? "Words this session uses" : "Words that show up in every session"}</h2>
     ${wordTable}
@@ -466,7 +493,33 @@ function shell(state, main, activeFile, weekOpen) {
     </main>`;
 }
 
+function focusKey(element) {
+  if (!element || !element.getAttribute) return "";
+  if (element.id) return `#${CSS.escape(element.id)}`;
+  if (element.dataset.note) return `textarea[data-note="${element.dataset.note}"]`;
+  if (element.dataset.score) return `select[data-score="${element.dataset.score}"]`;
+  if (element.dataset.lane && element.dataset.where) return `button[data-lane="${element.dataset.lane}"][data-where="${element.dataset.where}"]`;
+  if (element.dataset.truth) return `button[data-truth="${element.dataset.truth}"]`;
+  if (element.dataset.choice && element.dataset.value) return `button[data-choice="${element.dataset.choice}"][data-value="${element.dataset.value}"]`;
+  return "";
+}
+
+function onMenuKey(event) {
+  if (event.key !== "Escape") return;
+  const side = document.getElementById("side");
+  const toggle = document.getElementById("menu-toggle");
+  if (!side || !side.classList.contains("open")) return;
+  side.classList.remove("open");
+  if (toggle) {
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.focus();
+  }
+}
+
 function render() {
+  const active = document.activeElement;
+  const restoreFocus = focusKey(active);
+  const caret = active && active.dataset && active.dataset.note ? active.selectionStart : null;
   const state = loadState();
   const hash = location.hash || "#/";
   const lessonMatch = hash.match(/^#\/lesson\/([\w-]+)$/);
@@ -488,10 +541,28 @@ function render() {
     }
   }
   document.getElementById("app").innerHTML = shell(state, main, activeFile, weekOpen);
-  const toggle = document.getElementById("menu-toggle");
-  if (toggle) {
-    toggle.addEventListener("click", () => document.getElementById("side").classList.toggle("open"));
+  if (restoreFocus) {
+    const target = document.querySelector(restoreFocus);
+    if (target) {
+      target.focus();
+      if (caret != null && target.setSelectionRange) {
+        const pos = Math.min(caret, target.value.length);
+        target.setSelectionRange(pos, pos);
+      }
+    }
   }
+  const toggle = document.getElementById("menu-toggle");
+  const side = document.getElementById("side");
+  if (toggle && side) {
+    toggle.setAttribute("aria-controls", "side");
+    toggle.setAttribute("aria-expanded", side.classList.contains("open") ? "true" : "false");
+    toggle.addEventListener("click", () => {
+      const open = side.classList.toggle("open");
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+  }
+  document.removeEventListener("keydown", onMenuKey);
+  document.addEventListener("keydown", onMenuKey);
   document.querySelectorAll("button[data-choice]").forEach((button) => {
     button.addEventListener("click", () => {
       const next = loadState();
@@ -605,24 +676,29 @@ function render() {
     importInput.addEventListener("change", () => {
       const file = importInput.files && importInput.files[0];
       if (!file) return;
+      if (file.size > 1000000) {
+        window.alert("That file is larger than 1 MB. This reader only imports its own progress file.");
+        importInput.value = "";
+        return;
+      }
       const reader = new FileReader();
       reader.onload = () => {
         try {
-          const parsed = JSON.parse(String(reader.result));
-          if (!parsed || typeof parsed !== "object" || (!parsed.notes && !parsed.done && !parsed.scores)) {
-            throw new Error("missing progress");
-          }
-          delete parsed.exportedAt;
-          parsed.schemaVersion = 1;
-          saveState(parsed);
+          saveState(cleanImport(String(reader.result)));
           render();
         } catch (error) {
-          const status = document.createElement("p");
-          status.textContent = "That file is not a progress export from this reader.";
-          document.getElementById("main").prepend(status);
+          window.alert("That file is not a progress export from this reader.");
         }
       };
       reader.readAsText(file);
+    });
+  }
+  const clearButton = document.getElementById("clear-progress");
+  if (clearButton) {
+    clearButton.addEventListener("click", () => {
+      if (!window.confirm("Clear notes, scores, and diagram choices from this browser?")) return;
+      saveState({});
+      render();
     });
   }
   const debrief = document.getElementById("show-debrief");

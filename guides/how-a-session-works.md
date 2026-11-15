@@ -30,7 +30,7 @@ Stop at two hours. If the lesson is still closed, the tradeoff note is how you r
 
 | Word | Meaning |
 | --- | --- |
-| Who is grading | The interview standard for this hour. Visa cares about a timeout. Google and Microsoft care that you did the arithmetic before naming a database. It is not a chart. |
+| Interview signal | What a strong answer includes in this hour: a timeout treated as unknown, and the arithmetic before a database name. It is not a claim about a named company's rubric. |
 | Source of truth | The record that wins when a cache, a replica, or a model disagrees. |
 | Idempotency key | An id for this attempt. The same key on a retry returns the stored result. A new key is a new attempt. |
 | Sync path | What the caller waits for before you answer. |

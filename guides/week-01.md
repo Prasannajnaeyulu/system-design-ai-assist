@@ -70,7 +70,7 @@ A card tap starts a decision. It does not, by itself, pay the shop.
 - **Settlement**, after clearing. Money moves between banks.
 - **Disputes**, days or months later. The customer says the charge was wrong.
 
-Those later steps are real systems with different clocks and different correctness rules. "They are not this hour" means you say they exist, you say you are not designing them in this 90 minutes, and you do not draw them. An interviewer at Visa listens for that cut. Drawing auth, clearing, settlement, and disputes in one picture looks thorough and leaves you with no time for the decision that has a deadline.
+Those later steps are real systems with different clocks and different correctness rules. "They are not this hour" means you say they exist, you say you are not designing them in this 90 minutes, and you do not draw them. A strong interview answer makes that cut. Drawing auth, clearing, settlement, and disputes in one picture looks thorough and leaves you with no time for the decision that has a deadline.
 
 ### "The next person can tell a decline from an unknown."
 
@@ -86,23 +86,19 @@ The bug is storing a timeout as a decline. The customer is told "the bank refuse
 
 ### "Percentiles rather than averages. Which number sizes latency, and which number sizes storage."
 
-This is from chapter 1 of *Designing Data-Intensive Applications*. Two different mistakes hide inside the word "average."
+This is from *Designing Data-Intensive Applications*, second edition chapter 2 (first edition chapter 1). Two different mistakes hide inside the word "average."
 
-**Latency.** Suppose 99 taps return in 80 milliseconds and 1 tap waits 2 seconds. The average is still close to 80 milliseconds, and the customer who waited 2 seconds felt a failure. A **percentile** says how bad the slow tail is. **p99 of 150 milliseconds** means 99 out of 100 taps finish within 150 milliseconds. Chapter 1 asks for that number because the average hides the tail. You size servers and the pool of connections to the bank for the peak of 2,000 per second, so the tail still fits in 150 milliseconds.
+**Latency.** Suppose 99 taps return in 80 milliseconds and 1 tap waits 2 seconds. The average is still close to 80 milliseconds, and the customer who waited 2 seconds felt a failure. A **percentile** says how bad the slow tail is. **p99 of 150 milliseconds** means 99 out of 100 taps finish within 150 milliseconds. The book asks for that number because the average hides the tail. You size servers and the pool of connections to the bank for the peak of 2,000 per second, so the tail still fits in 150 milliseconds.
 
 **Storage.** The peak does not last all day. If you multiply 2,000 per second by a full day, you plan for about ten times more disk than the 200-per-second average will write. That extra disk does not make the terminal faster. Disk is sized from the average. Servers and the latency budget are sized from the peak.
 
 So the sentence "which number sizes latency, and which number sizes storage" means: peak and p99 for speed and fleet, average for bytes.
 
-### "Bar: Visa and Capital One, with a Google estimate"
+### The interview signal for this hour
 
-**Bar** means the standard that interview is grading, not a chart and not a toolbar.
-
-This hour mixes two standards on purpose.
-
-- **Visa** runs authorization. They will ask whether a timeout is stored as "unknown" rather than "declined," and whether a retry places a second hold.
-- **Capital One** is a card issuer. They will ask whether the path still has a defined behavior when a dependency is slow, such as a fraud check or the network call.
-- **A Google or Microsoft estimate** is the habit of doing the arithmetic before you name a database. If you say "Postgres" or "Kafka" before you have shown average-for-disk and peak-for-latency, they stop you. The product rules in this hour are Visa and Capital One. The discipline of the numbers is Google and Microsoft.
+- A strong answer stores a timeout as "unknown" rather than "declined," and a retry does not place a second hold.
+- A strong answer still has a defined behavior when a dependency is slow, such as a fraud check or the network call.
+- A strong answer does the arithmetic before naming a database. Average traffic sizes disk. Peak traffic sizes servers and the slow tail.
 
 The staff review stays hidden until you commit so you practice making the call, then compare. Matching the review is not the point of the journal. Defending your call with a number or a failure is the point.
 

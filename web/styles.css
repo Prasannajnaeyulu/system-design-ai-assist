@@ -3,7 +3,7 @@
   --paper: #fffdf9;
   --ink: #1c1915;
   --muted: #5e584e;
-  --faint: #8a8174;
+  --faint: #5c564c;
   --line: #e3dcd0;
   --side: #1e2a24;
   --side-ink: #f3efe6;
@@ -113,6 +113,9 @@ p, li { font-size: 18px; line-height: 1.55; }
 .lead { font-size: 20px; line-height: 1.5; color: var(--ink); }
 .muted { color: var(--muted); }
 .faint { color: var(--faint); font-family: "Avenir Next", "Segoe UI", sans-serif; font-size: 14px; }
+.source { border: 1px solid var(--line); padding: 10px 12px; margin: 10px 0; }
+.source b { display: block; font-family: "Avenir Next", "Segoe UI", sans-serif; font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; }
+.source p { margin: 6px 0 0; }
 
 .pills { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 8px; }
 .pill {

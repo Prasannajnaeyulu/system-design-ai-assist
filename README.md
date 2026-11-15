@@ -49,33 +49,35 @@ Score each move 0, 1, or 2. **0** is missing. **1** is named. **2** is defended 
 | Failure and idempotency | Timeout, retry, poison message, and what must not happen twice |
 | Tradeoff | Consistency, latency, cost, or freshness, and what you gave up |
 
-## Who you are practicing for
+## Interview signals
 
-Netflix and Uber stay the case studies. The bar you are practicing is the target companies.
+Netflix and Uber stay the case studies. Google, Microsoft, Revolut, Monzo, Visa, Capital One, and JPMorgan Chase are the kinds of systems you are practicing for. The lines below are interview signals. They are not a claim about what a named company's interviewer asks.
 
-- **Google and Microsoft.** Clarify before drawing. Estimate before naming a database. One deep dive, not a tour of every box. Say the tradeoff out loud. They interrupt.
-- **Revolut and Monzo.** The ledger is the product. No negative available balance, no lost payout, no duplicate card charge. Mobile scale matters after those invariants hold.
-- **Visa.** Authorization has a latency budget. A timeout is an unknown outcome, not a decline. Clearing and settlement are a different path from the auth decision, and reconciliation is where they meet.
-- **Capital One.** The fraud model has a deadline. Name the fallback when the model is down. Audit the features the decision used.
-- **JPMorgan Chase.** Audit and entitlement. Do not silently rewrite the ledger to match a file. A document assistant must not show another client's data. Human review leaves a trail.
+- Clarify before drawing. Estimate before naming a database. One deep dive, not a tour of every box. Say the tradeoff out loud.
+- On a ledger: no negative available balance, no lost payout, no duplicate card charge. Scale comes after those invariants hold.
+- On authorization: a latency budget, and a timeout stored as unknown rather than a decline. Clearing and settlement are a later path.
+- On a fraud model: a deadline, a named fallback when the model is down, and an audit of the features the decision used.
+- On audit: do not silently rewrite the ledger to match a file. A document assistant must not show another client's data. Human review leaves a trail.
 
 ## DDIA map
 
 Read the chapter for the idea. The workshops teach the decision.
 
-| Weeks | Chapter idea | Where you use it |
-| --- | --- | --- |
-| Foundations | Ch 2. Data models. Ch 3. Storage and indexes. Ch 4. Encoding and schema change. | Accounts versus documents, B-tree versus LSM, old and new payment events |
-| 1 | Ch 1. Reliable, scalable, maintainable. Percentiles, not averages. | Auth estimates, chatbot critique |
-| 2 | Ch 5 and 9. Replication lag and consistency models. Ch 7. Transactions. | Ledger versus feed, charge idempotency |
-| 3 | Ch 12. Derived data. Ch 6. Partitioning and hot keys. | Cache boundaries, partition keys |
-| 4 | Ch 11. Streams and the dual write. Ch 8. Partial failure. | Outbox, retries, poison messages |
-| 5–6 | Ch 1 and 8. Limits under failure. Ch 11 and 12. Fan-out and derived feeds. | Rate limiter, notifications, activity feed |
-| 6–7 | Ch 10 versus 11. Batch versus stream. Ch 6. Access-pattern partitioning. | Netflix ranking path, Uber dispatch, location fan-out |
-| 8 | Ch 10 and 12. Offline renditions, CDN as a cache. Ch 1. Tail latency. | Video path, SLOs |
-| 9–11 | Ch 7. Invariants in the transaction. Ch 8 and 10. Reconciling two logs. | Ledger, state machine, reconciliation, fraud, wallets |
-| 12–13 | Ch 10 and 11. Point-in-time derived features. Ch 2 and 12. Document access and rebuildable indexes. | Feature platform, serving, RAG, eval and cost |
-| 14 | All of the above on one system | Payment-risk capstone and the mock |
+The reader shows the 2026 second edition first, with the 2017 chapter in parentheses. Kleppmann and Riccomini, *Designing Data-Intensive Applications*, second edition.
+
+| Weeks | Second edition | First edition | Where you use it |
+| --- | --- | --- | --- |
+| Foundations | Ch 3, 4, and 5. Models, storage, encoding. | Ch 2, 3, and 4 | Accounts versus documents, B-tree versus LSM, old and new payment events |
+| 1 | Ch 2. Nonfunctional requirements. Percentiles. | Ch 1 | Auth estimates, chatbot critique |
+| 2 | Ch 6 and 10. Replication and consensus. Ch 8. Transactions. | Ch 5, 9, and 7 | Ledger versus feed, charge idempotency |
+| 3 | Ch 1 and 13. Derived data. Ch 7. Sharding. | Ch 12 and 6 | Cache boundaries, partition keys |
+| 4 | Ch 12. Streams. Ch 9. Partial failure. | Ch 11 and 8 | Outbox, retries, poison messages |
+| 5–6 | Ch 2 and 9. Limits under failure. Ch 12 and 13. Fan-out and derived feeds. | Ch 1, 8, 11, and 12 | Rate limiter, notifications, activity feed |
+| 6–7 | Ch 11 versus 12. Batch versus stream. Ch 7. Sharding by access pattern. | Ch 10, 11, and 6 | Netflix ranking path, Uber dispatch, location fan-out |
+| 8 | Ch 11 and 13. Offline renditions, CDN as a cache. Ch 2. Tail latency. | Ch 10, 12, and 1 | Video path, SLOs |
+| 9–11 | Ch 8. Invariants in the transaction. Ch 9 and 11. Reconciling two logs. | Ch 7, 8, and 10 | Ledger, state machine, reconciliation, fraud, wallets |
+| 12–13 | Ch 11 and 12. Point-in-time derived features. Ch 3 and 13. Documents and rebuildable indexes. | Ch 10, 11, 2, and 12 | Feature platform, serving, RAG, eval and cost |
+| 14 | All of the above on one system | | Payment-risk capstone and the mock |
 
 ## Sessions
 

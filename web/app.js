@@ -42,6 +42,37 @@ const NOTES = [
   ["tradeoff", "Tradeoff", "What you optimized, and what you gave up."],
 ];
 
+const BANKING = [
+  [/postings?|posted/i, "Posting", "One written line that money moved. Ten dollars left one account and ten dollars entered another. A posted balance is money already written down. This is not a social-media post."],
+  [/ledgers?/i, "Ledger", "The official book of those lines. If another copy disagrees, the ledger wins."],
+  [/double-entry/i, "Double-entry", "Each movement is written twice: once out of an account, once into an account."],
+  [/zero-sum/i, "Zero-sum", "The outs and the ins add up to zero. Nothing is created or lost."],
+  [/debits?/i, "Debit", "The 'money out' side of a line."],
+  [/credits?/i, "Credit", "The 'money in' side of a line. Here it does not mean a credit card."],
+  [/authorizations?|\bauth\b/i, "Authorization", "The yes, no, or 'not sure yet' while the customer is still at the shop. It reserves money. It does not pay the shop."],
+  [/captures?/i, "Capture", "The later step that takes the reserved money. Authorization said yes. Capture collects."],
+  [/clearing/i, "Clearing", "The banks comparing their records after the shop visit. It is not the moment the customer taps."],
+  [/settlements?/i, "Settlement", "The banks actually moving the money between them. It happens after clearing, not during the tap."],
+  [/\b(a hold|the hold|second hold|duplicate holds|remaining hold|hold state|places a hold|place a hold|post the hold|posted the hold)\b/i, "Hold", "Money set aside so it cannot be spent twice. The shop has not been paid yet."],
+  [/available balance/i, "Available balance", "What the customer can still spend. It is the ledger balance minus holds."],
+  [/refunds?/i, "Refund", "A new line that sends money back. You do not erase the original line."],
+  [/reversals?/i, "Reversal", "Undoing a step that did not finish, such as releasing a hold. The original line stays in the book."],
+  [/reconcil\w*/i, "Reconciliation", "Comparing your book with the bank's or the card processor's file, and recording any difference. You do not silently rewrite your book to match theirs."],
+  [/chargebacks?/i, "Chargeback", "The customer's bank takes the money back after a dispute. It is another line, not a deletion."],
+  [/disputes?/i, "Dispute", "The customer says a charge was wrong. Someone investigates. It is a later process, not the tap itself."],
+  [/payouts?/i, "Payout", "Paying money out to a person or a shop, often to their bank."],
+  [/wallets?/i, "Wallet", "An account inside your system that holds a customer's money before it is paid out."],
+  [/\bissuers?\b/i, "Issuer", "The customer's bank. The one that gave them the card and decides if they can spend."],
+  [/merchants?/i, "Merchant", "The shop. The business that takes the card."],
+  [/webhooks?/i, "Webhook", "A message the card processor sends you later, such as 'this payment went through.' It can arrive twice, or late."],
+  [/\bFX\b|foreign exchange/i, "FX", "Foreign exchange. Changing one currency into another, written as its own line so the books still add to zero."],
+];
+
+function bankingTerms(lesson) {
+  const blob = JSON.stringify(lesson);
+  return BANKING.filter(([pattern]) => pattern.test(blob)).map(([, term, meaning]) => [term, meaning]);
+}
+
 const GLOSSARY = [
   ["Source of truth", "The record that wins when a cache, a replica, or a model disagrees."],
   ["Idempotency key", "An id for this attempt. The same key on a retry returns the stored result. A new key is a new attempt."],
@@ -364,6 +395,12 @@ function renderLesson(state, file) {
   const picks = (state.picks && state.picks[file]) || {};
   const notes = (state.notes && state.notes[file]) || {};
   const written = notesReady(state, file);
+  const banking = bankingTerms(lesson);
+  const bankingBlock = banking.length
+    ? `<h2>Banking words</h2><p class="muted">Plain meanings for words on this page. A label is not the answer.</p><table><thead><tr><th>Word</th><th>In plain words</th></tr></thead><tbody>${banking
+        .map(([term, meaning]) => `<tr><td>${escapeHtml(term)}</td><td>${escapeHtml(meaning)}</td></tr>`)
+        .join("")}</tbody></table>`
+    : "";
   const words = lesson.words && lesson.words.length ? lesson.words : GLOSSARY;
   const wordTable = `<table><thead><tr><th>Word</th><th>Meaning</th></tr></thead><tbody>${words
     .map(([term, meaning]) => `<tr><td>${escapeHtml(term)}</td><td>${escapeHtml(meaning)}</td></tr>`)
@@ -441,6 +478,7 @@ function renderLesson(state, file) {
     </div>
     ${lesson.plain ? `<div class="callout good"><strong>The one job</strong><p>${escapeHtml(lesson.plain)}</p></div>` : ""}
     <p class="lead">${escapeHtml(lesson.brief)}</p>
+    ${bankingBlock}
     ${prompt}
     ${written ? "" : `<div class="callout warn"><strong>A note to you</strong><p>This box is not part of the design. It is a reminder for the person studying. Answer in the seven notes further down before you read the lesson. The explanation, the word list, the article, the choices, and one sample answer stay hidden until each note is a short paragraph. That is the practice: decide first, then compare.</p></div>`}
     <h2>Numbers you can use</h2>

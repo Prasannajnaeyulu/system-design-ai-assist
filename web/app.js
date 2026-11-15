@@ -412,6 +412,7 @@ function renderLesson(state, file) {
       ${lesson.timed ? `<span class="pill">Timed drill</span>` : ""}
       ${done ? `<span class="pill">Marked done</span>` : ""}
     </div>
+    ${lesson.plain ? `<div class="callout good"><strong>The one job</strong><p>${escapeHtml(lesson.plain)}</p></div>` : ""}
     <p class="lead">${escapeHtml(lesson.brief)}</p>
     ${prompt}
     ${written ? "" : `<div class="callout warn"><strong>Write first</strong><p>This is the prompt. The idea, the word list, the case, the choices, and the reference stay closed until each of the seven notes is a short paragraph. The numbers below are the givens.</p></div>`}

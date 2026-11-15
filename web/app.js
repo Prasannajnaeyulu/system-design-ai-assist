@@ -176,6 +176,13 @@ function weekOf(file) {
   return ORDER.findIndex((pair) => pair.includes(file)) + 1;
 }
 
+function estimateFeedback(estimate, saved, written) {
+  if (!saved || saved.value === undefined || saved.value === "") return "";
+  if (!written) return `<p class="muted">Saved. The worked arithmetic opens with the lesson, after the seven notes.</p>`;
+  const message = saved.ok ? `That order of magnitude holds. ${estimate.method}` : `Not yet. ${estimate.method}`;
+  return `<p class="muted">${escapeHtml(message)}</p>`;
+}
+
 function notesReady(state, file) {
   const notes = (state.notes && state.notes[file]) || {};
   return NOTES.every((item) => (notes[item[0]] || "").trim().length >= 40);
@@ -280,9 +287,9 @@ function renderHome(state) {
     </div>
     <h2>How to use a session</h2>
     <ol class="steps">
-      <li>Read the situation, the idea, and the word list. Do not skip to the reference design.</li>
-      <li>Make the choices. The line under a choice says what that choice does to the customer.</li>
-      <li>Place the boxes, do the arithmetic when the session asks for it, write the seven notes, and score each move. The session can be marked done only after that evidence is in the page.</li>
+      <li>Read the situation, the givens, and the failure. That is the whole prompt.</li>
+      <li>Place the boxes and write the seven notes before you read further. The idea, the choices, and the reference open after those notes are paragraphs.</li>
+      <li>Then compare, score each move, and mark the session done.</li>
     </ol>
     <p class="muted">The companies you are practicing for are Google, Microsoft, Revolut, Monzo, Visa, Capital One, and JPMorgan Chase. Netflix and Uber are the case studies, not the interviewers. The lessons are the same on every device. The notes you type stay in that browser.</p>
     <h2>What you practice placing</h2>
@@ -329,7 +336,7 @@ function renderLesson(state, file) {
   const week = weekOf(file);
   const picks = (state.picks && state.picks[file]) || {};
   const notes = (state.notes && state.notes[file]) || {};
-  const showDebrief = !lesson.timed || Boolean(state.debrief && state.debrief[file]);
+  const written = notesReady(state, file);
   const words = lesson.words && lesson.words.length ? lesson.words : GLOSSARY;
   const wordTable = `<table><thead><tr><th>Word</th><th>Meaning</th></tr></thead><tbody>${words
     .map(([term, meaning]) => `<tr><td>${escapeHtml(term)}</td><td>${escapeHtml(meaning)}</td></tr>`)
@@ -345,14 +352,14 @@ function renderLesson(state, file) {
       const options = choice.options
         .map((option) => {
           const picked = picks[choice.id] === option.value;
-          const reveal = showDebrief && option.value === choice.sound;
+          const reveal = written && option.value === choice.sound;
           return `<button class="opt ${picked ? "picked" : ""} ${reveal ? "match" : ""}" data-choice="${escapeHtml(choice.id)}" data-value="${escapeHtml(option.value)}">${escapeHtml(option.label)}</button>${
             picked && option.effect ? `<p class="effect">${escapeHtml(option.effect)}</p>` : ""
           }`;
         })
         .join("");
       const staff =
-        showDebrief && picks[choice.id]
+        written && picks[choice.id]
           ? `<p class="muted">${escapeHtml(choice.staff)}</p>`
           : "";
       return `<div class="choice"><h3>${escapeHtml(choice.prompt)}</h3>${options}${staff}</div>`;
@@ -367,13 +374,8 @@ function renderLesson(state, file) {
       <table><thead><tr><th>Move</th><th>What a strong answer includes</th></tr></thead><tbody>${lesson.rubric
         .map((row) => `<tr><td>${escapeHtml(row[0])}</td><td>${escapeHtml(row[1])}</td></tr>`)
         .join("")}</tbody></table>`;
-  const review = showDebrief
-    ? `<details class="reference"><summary>Open the reference design after you have written your notes</summary>${reviewBody}</details>`
-    : `<div class="callout warn"><strong>Write first</strong><p>This is a timed drill. The debrief opens after each of the seven notes is a real paragraph.</p>${notesReady(state, file) ? `<button class="primary" id="show-debrief" type="button">Show the debrief</button>` : `<p>The notes are not there yet.</p>`}</div>`;
   const caseNote = CASE_NOTES[file] ? `<p>${escapeHtml(CASE_NOTES[file])}</p>` : "";
-  const caseBlock = showDebrief
-    ? `<h2>The case</h2><p>${escapeHtml(lesson.caseBody)}</p>${caseNote}<p><a href="${escapeHtml(lesson.caseUrl)}" target="_blank" rel="noreferrer">${escapeHtml(lesson.caseLink)}</a></p>`
-    : "";
+  const caseBlock = `<h2>The case</h2><p>${escapeHtml(lesson.caseBody)}</p>${caseNote}<p><a href="${escapeHtml(lesson.caseUrl)}" target="_blank" rel="noreferrer">${escapeHtml(lesson.caseLink)}</a></p>`;
   const diagram = (state.diagrams && state.diagrams[file]) || { lanes: {}, truth: "" };
   const diagramRows = DIAGRAM_NODES.map(([id, label]) => {
     const lane = (diagram.lanes || {})[id] || "";
@@ -387,7 +389,7 @@ function renderLesson(state, file) {
   const estimate = ESTIMATES[file];
   const estimateState = (state.estimates && state.estimates[file]) || {};
   const estimateBlock = estimate
-    ? `<h2>Do the arithmetic</h2><p>${escapeHtml(estimate.prompt)}</p><div class="row"><input id="estimate-input" type="number" aria-label="${escapeHtml(estimate.unit)}" placeholder="${escapeHtml(estimate.unit)}" value="${escapeHtml(estimateState.value || "")}" style="max-width:160px" /><button class="ghost" id="check-estimate" type="button">Check</button></div>${estimateState.message ? `<p class="muted">${escapeHtml(estimateState.message)}</p>` : ""}`
+    ? `<h2>Do the arithmetic</h2><p>${escapeHtml(estimate.prompt)}</p><div class="row"><input id="estimate-input" type="number" aria-label="${escapeHtml(estimate.unit)}" placeholder="${escapeHtml(estimate.unit)}" value="${escapeHtml(estimateState.value || "")}" style="max-width:160px" /><button class="ghost" id="check-estimate" type="button">Check</button></div>${estimateFeedback(estimate, estimateState, written)}`
     : "";
   const scoreFields = NOTES.map(([id, label]) => {
     const value = ((state.scores && state.scores[file]) || {})[id] || "";
@@ -411,29 +413,16 @@ function renderLesson(state, file) {
       ${done ? `<span class="pill">Marked done</span>` : ""}
     </div>
     <p class="lead">${escapeHtml(lesson.brief)}</p>
-    ${lesson.goal ? `<div class="callout good"><strong>Goal of this session</strong><p>${escapeHtml(lesson.goal)}</p></div>` : ""}
     ${prompt}
-    <h2>The idea</h2>
-    <p>${escapeHtml(lesson.idea)}</p>
-    <div class="callout"><strong>${escapeHtml(lesson.ddiaTitle)}</strong><p>${escapeHtml(lesson.ddiaBody)}</p></div>
-    <div class="callout"><strong>${escapeHtml(lesson.barTitle)}</strong><p>${escapeHtml(lesson.barBody)}</p></div>
-    ${mechanismBlock(file)}
-    <h2>${lesson.words && lesson.words.length ? "Words this session uses" : "Words that show up in every session"}</h2>
-    ${wordTable}
-    <h2>Numbers</h2>
+    ${written ? "" : `<div class="callout warn"><strong>Write first</strong><p>This is the prompt. The idea, the word list, the case, the choices, and the reference stay closed until each of the seven notes is a short paragraph. The numbers below are the givens.</p></div>`}
+    <h2>Givens</h2>
     <div class="stats">${stats}</div>
-    ${given}
-    ${caseBlock}
-    ${code}
     <h2>The failure you have to handle</h2>
     <div class="callout warn"><strong>${escapeHtml(lesson.failureTitle)}</strong><p>${escapeHtml(lesson.failureBody)}</p></div>
     <h2>Place the design</h2>
     <p class="muted">Put each box on the path the caller waits for, on the path after you answer, or outside this design. Mark the one store that wins if the others disagree. Only a store should be the source of truth. A load balancer is not a source of truth.</p>
     ${diagramRows}
     ${estimateBlock}
-    <h2>Choose, then read what it does</h2>
-    <p class="muted">Pick the cut you would defend. If a line appears under it, that is the consequence, not the score. The reference design is below, after you write.</p>
-    ${choices}
     <h2>Write the design</h2>
     <p class="muted">These notes stay in this browser. A 2 on the score is a number, a rule, or a failure. A 1 is only the name of the idea.</p>
     ${noteFields}
@@ -445,9 +434,22 @@ function renderLesson(state, file) {
       <button class="primary" id="mark-done" type="button" ${missing.length ? "disabled" : ""}>${done ? "Marked done" : "Mark this session done"}</button>
       ${week ? `<a class="button" href="#/week/${week}">Back to week ${week}</a>` : `<a class="button" href="#/">Back home</a>`}
     </div>
+    ${written ? `<h2>The lesson</h2>
+    ${lesson.goal ? `<div class="callout good"><strong>Goal of this session</strong><p>${escapeHtml(lesson.goal)}</p></div>` : ""}
+    <p>${escapeHtml(lesson.idea)}</p>
+    <div class="callout"><strong>${escapeHtml(lesson.ddiaTitle)}</strong><p>${escapeHtml(lesson.ddiaBody)}</p></div>
+    <div class="callout"><strong>${escapeHtml(lesson.barTitle)}</strong><p>${escapeHtml(lesson.barBody)}</p></div>
+    ${mechanismBlock(file)}
+    <h2>${lesson.words && lesson.words.length ? "Words this session uses" : "Words that show up in every session"}</h2>
+    ${wordTable}
+    ${given}
+    ${caseBlock}
+    ${code}
+    <h2>Choose, then read what it does</h2>
+    <p class="muted">Pick the cut you would defend. The line under a choice is the consequence. Then open the reference and compare it with the notes you already wrote.</p>
+    ${choices}
     <h2>Reference design</h2>
-    <p class="muted">Read this after your notes. It is one defensible design, not the only one. Compare the rule it protects with the rule you wrote.</p>
-    ${review}
+    <details class="reference"><summary>Open the reference design</summary>${reviewBody}</details>` : ""}
     <div class="pager">
       ${prev ? `<a href="${lessonLink(prev)}">← ${escapeHtml(byFile[prev].title)}</a>` : "<span></span>"}
       ${next ? `<a href="${lessonLink(next)}">${escapeHtml(byFile[next].title)} →</a>` : "<span></span>"}
@@ -489,7 +491,7 @@ function render() {
   if (toggle) {
     toggle.addEventListener("click", () => document.getElementById("side").classList.toggle("open"));
   }
-  document.querySelectorAll("button.opt").forEach((button) => {
+  document.querySelectorAll("button[data-choice]").forEach((button) => {
     button.addEventListener("click", () => {
       const next = loadState();
       next.picks = next.picks || {};
@@ -502,10 +504,15 @@ function render() {
   document.querySelectorAll("textarea[data-note]").forEach((area) => {
     area.addEventListener("input", () => {
       const next = loadState();
+      const wasWritten = notesReady(next, activeFile);
       next.notes = next.notes || {};
       next.notes[activeFile] = next.notes[activeFile] || {};
       next.notes[activeFile][area.dataset.note] = area.value;
       saveState(next);
+      if (wasWritten !== notesReady(next, activeFile)) {
+        render();
+        return;
+      }
       const missingNow = readiness(next, activeFile);
       const button = document.getElementById("mark-done");
       const warn = document.getElementById("ready-warn");

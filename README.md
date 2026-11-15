@@ -9,7 +9,7 @@ cd web
 python3 -m http.server 8765
 ```
 
-Then open [http://localhost:8765](http://localhost:8765). Your notes and your place stay in that browser. Each week is two sessions: read the situation, make a choice, write the seven notes, then read the reference design.
+Then open [http://localhost:8765](http://localhost:8765). Your notes and your place stay in that browser. Each session starts as a blank prompt. The idea, the choices, and the reference open after the seven notes are written.
 
 You can build an API and a database. This program trains the next skill: making a design hold together when a call times out, a replica lags, or a model is slow. The finish line is a 45-minute design you can run for Google, Microsoft, or a financial firm, and defend on a ledger or an AI path.
 
@@ -26,10 +26,10 @@ Staff judgment still comes from shipping systems after the program. Hire-level h
 
 The reader in `web/` is the course. Open the site above, or the local server. Do the three foundation sessions first, then the weeks in order.
 
-1. **Read the idea.** One mechanism, one failure, and where it sits behind a load balancer. The page names the DDIA chapter. It does not paste the book.
-2. **Read the case for the decision**, not for a summary. Write what they gave up.
-3. **Place the diagram, do the arithmetic when the page asks, and write the seven notes.** The reference design stays closed on a timed drill until those notes are real paragraphs.
-4. **Score each move 0, 1, or 2.** You cannot mark the session done until the seven notes and the scores are filled.
+1. **Read only the prompt.** The situation, the givens, and the failure. The idea, the case, the choices, and the reference stay closed.
+2. **Place the diagram, do the arithmetic when the page asks, and write the seven notes.** Each note needs a short paragraph. That writing opens the lesson.
+3. **Read the lesson and compare.** One mechanism, the case decision, and one reference design. The page names the DDIA chapter. It does not paste the book.
+4. **Score each move 0, 1, or 2.** You cannot mark the session done until the seven notes, the diagram, and the scores are filled.
 
 Notes stay in this browser. Use Export on the home page if you switch devices. [`journal/template.md`](journal/template.md) is the same seven moves on paper. [`guides/week-01.md`](guides/week-01.md) explains the card-payment words.
 
@@ -97,5 +97,5 @@ python3 labs/ledger/ledger.py
 
 - Every workshop is money, a marketplace, or a model.
 - State a source of truth and an idempotency story before the review will open.
-- Timed drills stay closed until the seven notes are written in the reader.
+- Every session stays a prompt until the seven notes are written in the reader. Timed drills use the same gate.
 - If a week slips, repeat the drill. Do not skip the financial weeks. The AI labs assume the ledger and the outbox.

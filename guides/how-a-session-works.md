@@ -4,9 +4,9 @@ Open the reader at https://prasannajnaeyulu.github.io/system-design-ai-assist/ .
 
 ## What a session is for
 
-You are practicing a design review, not collecting the right dropdown.
+You are practicing a design review. The page opens as the prompt only. The choices are a comparison you make after you have already written.
 
-The dropdowns are a warm-up. They force a cut: scope, a number, or a consistency choice. The work that counts is what you write after the failure shows up:
+The work that counts is what you write from the failure:
 
 - the record that wins if two stores disagree
 - what a retry returns
@@ -17,15 +17,14 @@ The staff review is a reference design. It opens after you commit so you can com
 
 ## What to do in the 90 minutes
 
-1. Read the goal and the word list on the panel. If a word is not in that list and you cannot say it in one sentence, write the sentence in the journal before you continue.
-2. Read the case link for one decision the team made and what it cost them. Five lines. Some posts are about a neighboring problem. The panel says what to take from the post. Do not summarize it.
-3. Answer the choices. Read the consequence that appears under the one you picked. If the consequence is a customer getting charged twice or waiting on the wrong clock, change the choice before you move on.
-4. On the early labs, do the arithmetic on the panel. Average traffic times 86,400 is a day's writes. Peak traffic sizes servers and the slow tail. The panel checks your order of magnitude.
-5. On the card lab, place each step on the path the customer waits for, or on the path that may finish after you have already answered.
-6. Read the failure. Write what the caller sees and what must not happen twice.
-7. Commit. Read the review. Then fill `journal/<lab-name>.md` from [journal/template.md](../journal/template.md).
+1. Read the situation, the givens, and the failure. Do not go looking for the idea. It is not on the page yet.
+2. Place each step on the path the caller waits for, or on the path that may finish after you have answered. Mark the source of truth.
+3. Do the arithmetic when the page asks. Average traffic times 86,400 is a day's writes. Peak traffic sizes servers and the slow tail. Write the arithmetic in the Estimates note. The worked number stays hidden until the notes exist.
+4. Write a short paragraph in each of the seven notes. That is what opens the lesson.
+5. Read the idea, the case, and the choices. The line under a choice is the consequence. Some posts are about a neighboring problem. The page says what to take from the post.
+6. Open the reference and compare it with what you wrote. Then score the seven moves. Fill `journal/<lab-name>.md` from [journal/template.md](../journal/template.md) if you want the same notes on paper.
 
-Stop at two hours. If the review is still hidden, write the tradeoff in the journal anyway. That file is how you resume tomorrow.
+Stop at two hours. If the lesson is still closed, the tradeoff note is how you resume tomorrow.
 
 ## Words that show up on every lab
 
@@ -41,6 +40,6 @@ Stop at two hours. If the review is still hidden, write the tradeoff in the jour
 
 ## Where the materials are still thin
 
-Week 1 and the ledger lab in week 2 explain the words, show the consequence of a choice, and make you compute or place steps. The later labs still use the older shape: three dropdowns, then writing, then a hidden review. Use them the same way. The writing is the lab. The dropdown is only the cut. If a word on those panels is undefined, add it to that day's journal in one sentence before you answer.
+Every session now opens as the prompt. The later sessions still have a shorter lesson underneath than week 1. The writing is the lab. If a word in the lesson is undefined after it opens, add it to that day's journal in one sentence.
 
-Timed drills in weeks 5, 7, 11, and 14 still show the numbers on the panel. Treat the journal as the closed-book answer. Do not scroll to the review, and do not open the case link, until you have committed.
+Timed drills in weeks 5, 7, 11, and 14 use the same gate. The givens stay visible. The case and the reference do not.

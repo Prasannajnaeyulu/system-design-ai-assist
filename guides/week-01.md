@@ -7,7 +7,7 @@ You do two 90-minute sessions:
 1. Card authorization estimates, in the reader — a card tap at a shop terminal.
 2. Repair a banking chatbot design, in the reader — a proposal that lets a language model move money.
 
-Open them from the site. Read the page from the top. The reference design stays closed until you open it.
+Open them from the site. The page starts as the prompt. The idea, the choices, and the reference open after the seven notes are paragraphs.
 
 ## Goal
 
@@ -37,12 +37,10 @@ You are not expected to design Visa's network, a ledger, or a model platform thi
 
 The panel is a sequence, not a document.
 
-1. Read the situation and the word list on the panel. Copy [journal/template.md](../journal/template.md) to `journal/week-01-card-authorization.md` or `journal/week-01-banking-chatbot.md`.
-2. Spend about 20 minutes on the case link. Write five lines on the decision that team made and what they gave up. Do not summarize the post.
-3. Answer the decisions. The next question appears only after you choose. There is a stronger answer, and the panel does not show it yet.
-4. A failure appears. Write what the customer can see, and what must not happen twice.
-5. Write four short pieces: source of truth, idempotency story, the one component you would spend the last ten minutes on, and the journal notes. Each box needs at least a sentence.
-6. Click commit. The staff review opens. It is a reference design from the interviewer side. Compare it with your choices. Then score the seven moves in the journal.
+1. Read the situation, the givens, and the failure. Copy [journal/template.md](../journal/template.md) to `journal/week-01-card-authorization.md` or `journal/week-01-banking-chatbot.md` if you want a paper copy.
+2. Place the diagram and write the seven notes in the reader. Each note is a short paragraph. The lesson is still closed.
+3. When the notes exist, read the case for the decision and the cost, then the choices. Compare the consequence with what you wrote.
+4. Open the reference. It is one design from the interviewer side. Score the seven moves.
 
 Your choices stay in the panel after you close it. If you stop early, reopen the same panel tomorrow and finish the journal before you start session 2.
 
